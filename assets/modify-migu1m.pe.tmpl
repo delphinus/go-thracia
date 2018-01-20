@@ -3,8 +3,8 @@
 Print("Generate modified Migu 1M")
 
 # Set parameters
-input_list  = ["{{.SrcRegular}}", "{{.SrcBold}}"]
-output_list = ["{{.DstRegular}}", "{{.DstBold}}"]
+input_list  = ["{{.SrcRegular}}"]
+output_list = ["{{.DstRegular}}"]
 
 # Begin loop of regular and bold
 i = 0
@@ -14,16 +14,14 @@ while (i < SizeOf(input_list))
     Open(input_list[i])
     SelectWorthOutputting()
     UnlinkReference()
-    ScaleToEm(860, 140)
+    ScaleToEm({{.Ascent}}, {{.Descent}})
 
     # Scale down all glyphs
-    if ("{{.ScaleDown}}" == "true")
-        Print("Scale down all glyphs (it may take a few minutes)")
-        SelectWorthOutputting()
-        SetWidth(-1, 1); Scale(91, 91, 0, 0); SetWidth(110, 2); SetWidth(1, 1)
-        Move(23, 0); SetWidth(-23, 1)
-        RoundToInt(); RemoveOverlap(); RoundToInt()
-    endif
+    Print("Move all glyphs to center (it may take a few minutes)")
+    SelectWorthOutputting()
+    Move({{.Padding}}, 0); SetWidth({{.Padding}}, 1)
+
+    RoundToInt(); RemoveOverlap(); RoundToInt()
 
     # Clear instructions
     Print("Clear instructions")

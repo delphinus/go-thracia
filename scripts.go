@@ -12,18 +12,26 @@ import (
 )
 
 func scripts(ctx context.Context) error {
+	c := cliContext(ctx)
 	fontforge, err := exec.LookPath("fontforge")
 	if err != nil {
 		return fmt.Errorf("cannot find `fontforge` executable")
 	}
 
+	// Glyphs of SFMono has this metrics:
+	// h: 1638 + 410 = 2048
+	// w: 1266
+	// So zenkaku glyphs should have padding on left and right:
+	// (1266 * 2 - 2048) / 2 = 242
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
 		"FontForge":  fontforge,
+		"Ascent":     1638,
+		"Descent":    410,
+		"Padding":    242,
 		"SrcRegular": migu1mTTFs[0],
 		"SrcBold":    migu1mTTFs[1],
 		"DstRegular": modifiedMigu1mTTFs[0],
 		"DstBold":    modifiedMigu1mTTFs[1],
-		"ScaleDown":  cliContext(ctx).BoolT("scale-down"),
 		"DstDir":     tempDir(ctx),
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
@@ -35,13 +43,15 @@ func scripts(ctx context.Context) error {
 		"FontForge":         fontforge,
 		"SFMonoRegular":     SFMonoTTFs[0],
 		"SFMonoBold":        SFMonoTTFs[2],
-		"Migu1mRegular":     migu1mTTFs[0],
-		"Migu1mBold":        migu1mTTFs[1],
+		"Migu1mRegular":     modifiedMigu1mTTFs[0],
+		"Migu1mBold":        modifiedMigu1mTTFs[1],
 		"FamilyName":        "SFMono",
 		"FamilyNameSuffix":  c.String("suffix"),
 		"Version":           "v0.1.0",
-		"Ascent":            1950,
-		"Descent":           494,
+		"WinAscent":         1950,
+		"WinDescent":        494,
+		"Ascent":            1638,
+		"Descent":           410,
 		"ZenkakuSpaceGlyph": "",
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)

@@ -54,9 +54,6 @@ func flags() []cli.Flag {
 			Name:  "verbose, vv",
 			Usage: "Print logs verbosely",
 		},
-		cli.BoolTFlag{
-			Name:  "scale-down, s",
-			Usage: "Scale down Migu 1M (default: true)",
 		cli.StringFlag{
 			Name:  "suffix, n",
 			Usage: "Set fontfamily suffix",

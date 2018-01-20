@@ -4,13 +4,18 @@
 Print("Generate SFMono-mod")
 
 # Set parameters
-sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}"]
-migu1m_list       = ["{{.Migu1mRegular}}", "{{.Migu1mBold}}"]
+#sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}"]
+sfmono_list  = ["{{.SFMonoRegular}}"]
+#migu1m_list       = ["{{.Migu1mRegular}}", "{{.Migu1mBold}}"]
+migu1m_list       = ["{{.Migu1mRegular}}"]
 fontfamily        = "{{.FamilyName}}"
 fontfamilysuffix  = "{{.FamilyNameSuffix}}"
-fontstyle_list    = ["Regular", "Bold"]
-fontweight_list   = [400,       700]
-panoseweight_list = [5,         8]
+#fontstyle_list    = ["Regular", "Bold"]
+fontstyle_list    = ["Regular"]
+#fontweight_list   = [400,       700]
+fontweight_list   = [400]
+#panoseweight_list = [5,         8]
+panoseweight_list = [5]
 copyright         = ""
 version           = "{{.Version}}"
 
@@ -39,7 +44,7 @@ while (i < SizeOf(fontstyle_list))
     endif
     SetTTFName(0x409, 2, fontstyle_list[i])
     SetTTFName(0x409, 3, "FontForge 2.0 : " + $fullname + " : " + Strftime("%d-%m-%Y", 0))
-    ScaleToEm(860, 140)
+    ScaleToEm({{.Ascent}}, {{.Descent}})
     SetOS2Value("Weight", fontweight_list[i]) # Book or Bold
     SetOS2Value("Width",                   5) # Medium
     SetOS2Value("FSType",                  0)
@@ -51,13 +56,13 @@ while (i < SizeOf(fontstyle_list))
     SetOS2Value("TypoDescentIsOffset",     0)
     SetOS2Value("HHeadAscentIsOffset",     0)
     SetOS2Value("HHeadDescentIsOffset",    0)
-    SetOS2Value("WinAscent",             {{.Ascent}})
-    SetOS2Value("WinDescent",            {{.Descent}})
-    SetOS2Value("TypoAscent",            860)
-    SetOS2Value("TypoDescent",          -140)
+    SetOS2Value("WinAscent",             {{.WinAscent}})
+    SetOS2Value("WinDescent",            {{.WinDescent}})
+    SetOS2Value("TypoAscent",            {{.Ascent}})
+    SetOS2Value("TypoDescent",          -{{.Descent}})
     SetOS2Value("TypoLineGap",             0)
-    SetOS2Value("HHeadAscent",           {{.Ascent}})
-    SetOS2Value("HHeadDescent",         -{{.Descent}})
+    SetOS2Value("HHeadAscent",           {{.WinAscent}})
+    SetOS2Value("HHeadDescent",         -{{.WinDescent}})
     SetOS2Value("HHeadLineGap",            0)
     SetPanose([2, 11, panoseweight_list[i], 9, 2, 2, 3, 2, 2, 7])
 
