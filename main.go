@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	version               = "v0.1.0"
 	migu1mURL             = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
 	migu1mFile            = "migu1m.zip"
 	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
@@ -42,21 +43,25 @@ func New() *cli.App {
 	app.ErrWriter = cli.ErrWriter
 	app.Name = "thracia"
 	app.Usage = "Make fonts with SFMono + others"
-	app.Version = "v0.1.0"
+	app.Version = version
 	app.Flags = flags()
 	app.Action = action
 	return app
 }
 
 func flags() []cli.Flag {
+	cli.VersionFlag = cli.BoolFlag{
+		Name:  "version, V",
+		Usage: "print the version",
+	}
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name:  "verbose, vv",
-			Usage: "Print logs verbosely",
+			Name:  "verbose, v",
+			Usage: "print logs verbosely",
 		},
 		cli.StringFlag{
 			Name:  "suffix, n",
-			Usage: "Set fontfamily suffix",
+			Usage: "set fontfamily suffix",
 		},
 	}
 }

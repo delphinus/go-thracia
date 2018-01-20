@@ -47,7 +47,7 @@ func scripts(ctx context.Context) error {
 		"Migu1mBold":        modifiedMigu1mTTFs[1],
 		"FamilyName":        "SFMono",
 		"FamilyNameSuffix":  c.String("suffix"),
-		"Version":           "v0.1.0",
+		"Version":           version,
 		"WinAscent":         1950,
 		"WinDescent":        494,
 		"Ascent":            1638,
