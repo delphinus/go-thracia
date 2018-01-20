@@ -84,7 +84,7 @@ func action(c *cli.Context) error {
 }
 
 func extract(ctx context.Context, zipFile string, members []string) (err error) {
-	z, err := zip.OpenReader(zipFile)
+	z, err := zip.OpenReader(pathInTempDir(ctx, zipFile))
 	if err != nil {
 		return fmt.Errorf("error in OpenReader: %v", err)
 	}
