@@ -95,9 +95,3 @@ func fetch(ctx context.Context, dl *toDownload) (err error) {
 	_, err = io.Copy(file, b.NewProxyReader(resp.Body))
 	return err
 }
-
-func checkClose(c io.Closer, err *error) {
-	if cerr := c.Close(); cerr != nil && *err == nil {
-		*err = cerr
-	}
-}

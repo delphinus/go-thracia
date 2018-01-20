@@ -2,6 +2,7 @@ package thracia
 
 import (
 	"context"
+	"io"
 	"io/ioutil"
 
 	"github.com/urfave/cli"
@@ -39,4 +40,10 @@ func tempDir(ctx context.Context) string {
 		return v
 	}
 	return ""
+}
+
+func checkClose(c io.Closer, err *error) {
+	if cerr := c.Close(); cerr != nil && *err == nil {
+		*err = cerr
+	}
 }
