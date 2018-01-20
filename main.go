@@ -27,21 +27,45 @@ func New() *cli.App {
 	return app
 }
 
-func flags() []cli.Flag { return nil }
+func flags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  "clear, c",
+			Usage: "Clear all downloads, and run",
+		},
+	}
+}
 
 func action(c *cli.Context) error {
 	ctx := contextWithCLI(context.Background(), c)
 	toDL := []*toDownload{}
-	if _, err := os.Stat(migu1mFile); os.IsNotExist(err) {
-		toDL = append(toDL, &toDownload{
-			filename: migu1mFile,
-			URL:      migu1mURL,
-		})
-	} else if err != nil {
-		return fmt.Errorf("error in Stat: %v", err)
+	toDL = append(toDL, &toDownload{
+		filename: migu1mFile,
+		URL:      migu1mURL,
+	})
+	if err := clear(ctx, &toDL); err != nil {
+		return fmt.Errorf("error in clear: %v", err)
 	}
 	if err := download(ctx, toDL); err != nil {
 		return fmt.Errorf("error in download: %v", err)
 	}
+	return nil
+}
+
+func clear(ctx context.Context, toDL *[]*toDownload) error {
+	cleared := make([]*toDownload, 0, len(*toDL))
+	for _, dl := range *toDL {
+		if _, err := os.Stat(dl.filename); os.IsNotExist(err) {
+			cleared = append(cleared, dl)
+		} else if err != nil {
+			return fmt.Errorf("error in Stat: %v", err)
+		} else if cliContext(ctx).Bool("clear") {
+			if err := os.Remove(dl.filename); err != nil {
+				return fmt.Errorf("error in Remove: %v", err)
+			}
+			cleared = append(cleared, dl)
+		}
+	}
+	*toDL = cleared
 	return nil
 }
