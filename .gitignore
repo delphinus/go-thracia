@@ -172,7 +172,4 @@ Temporary Items
 ### custom rules
 /thracia
 /vendor
-/*.ttf
-/*.otf
-/*.zip
 /assets.go
