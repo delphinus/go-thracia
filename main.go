@@ -4,16 +4,20 @@ import (
 	"archive/zip"
 	"context"
 	"fmt"
+	"html/template"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli"
 )
 
 const (
-	migu1mURL  = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
-	migu1mFile = "migu1m.zip"
+	migu1mURL        = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
+	migu1mFile       = "migu1m.zip"
+	modifyMigu1mTmpl = "/assets/modify-migu1m.pe.tmpl"
 	// SFMonoDir is a dir to store SFMono fonts
 	SFMonoDir = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
 )
@@ -75,6 +79,9 @@ func action(c *cli.Context) error {
 	}
 	if err := copySFMono(ctx); err != nil {
 		return fmt.Errorf("error in copySFMono: %v", err)
+	}
+	if err := scripts(ctx, modifyMigu1mTmpl, nil); err != nil {
+		return fmt.Errorf("error in scripts: %v", err)
 	}
 	return nil
 }
@@ -146,6 +153,36 @@ func copySFMono(ctx context.Context) (err error) {
 		if _, err := io.Copy(dst, src); err != nil {
 			return fmt.Errorf("error in Copy: %v", err)
 		}
+	}
+	return nil
+}
+
+func scriptFilename(ctx context.Context, tmpl string) string {
+	filename := strings.TrimSuffix(filepath.Base(tmpl), ".tmpl")
+	return filepath.Join(tempDir(ctx), filename)
+}
+
+func scripts(ctx context.Context, tmpl string, data interface{}) (err error) {
+	f, err := Assets.Open(tmpl)
+	if err != nil {
+		return fmt.Errorf("error in Open: %v", err)
+	}
+	defer checkClose(f, &err)
+	content, err := ioutil.ReadAll(f)
+	if err != nil {
+		return fmt.Errorf("error in ReadAll: %v", err)
+	}
+	t, err := template.New("").Parse(string(content))
+	if err != nil {
+		return fmt.Errorf("error in Parse: %v", err)
+	}
+	dst, err := os.Create(scriptFilename(ctx, tmpl))
+	if err != nil {
+		return fmt.Errorf("error in Create: %v", err)
+	}
+	defer checkClose(dst, &err)
+	if err := t.Execute(dst, data); err != nil {
+		return fmt.Errorf("error in Execute: %v", err)
 	}
 	return nil
 }
