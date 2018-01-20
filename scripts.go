@@ -23,6 +23,7 @@ func scripts(ctx context.Context) error {
 		"DstRegular": modifiedMigu1mTTFs[0],
 		"DstBold":    modifiedMigu1mTTFs[1],
 		"ScaleDown":  cliContext(ctx).BoolT("scale-down"),
+		"DstDir":     tempDir(ctx),
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	}
