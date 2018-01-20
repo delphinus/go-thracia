@@ -1,0 +1,139 @@
+#!{{.FontForge}} -script
+
+# Print message
+Print("Generate SFMono-mod")
+
+# Set parameters
+sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}"]
+migu1m_list       = ["{{.Migu1mRegular}}", "{{.Migu1mBold}}"]
+fontfamily        = "{{.FamilyName}}"
+fontfamilysuffix  = "{{.FamilyNameSuffix}}"
+fontstyle_list    = ["Regular", "Bold"]
+fontweight_list   = [400,       700]
+panoseweight_list = [5,         8]
+copyright         = ""
+version           = "{{.Version}}"
+
+# Begin loop of regular and bold
+i = 0
+while (i < SizeOf(fontstyle_list))
+    # Open new file
+    New()
+
+    # Set encoding to Unicode-bmp
+    Reencode("unicode")
+
+    # Set configuration
+    if (fontfamilysuffix != "")
+        SetFontNames(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i], \
+                     fontfamily + " " + fontfamilysuffix, \
+                     fontfamily + " " + fontfamilysuffix + " " + fontstyle_list[i], \
+                     fontstyle_list[i], \
+                     copyright, version)
+    else
+        SetFontNames(fontfamily + "-" + fontstyle_list[i], \
+                     fontfamily, \
+                     fontfamily + " " + fontstyle_list[i], \
+                     fontstyle_list[i], \
+                     copyright, version)
+    endif
+    SetTTFName(0x409, 2, fontstyle_list[i])
+    SetTTFName(0x409, 3, "FontForge 2.0 : " + $fullname + " : " + Strftime("%d-%m-%Y", 0))
+    ScaleToEm(860, 140)
+    SetOS2Value("Weight", fontweight_list[i]) # Book or Bold
+    SetOS2Value("Width",                   5) # Medium
+    SetOS2Value("FSType",                  0)
+    SetOS2Value("VendorID",           "PfEd")
+    SetOS2Value("IBMFamily",            2057) # SS Typewriter Gothic
+    SetOS2Value("WinAscentIsOffset",       0)
+    SetOS2Value("WinDescentIsOffset",      0)
+    SetOS2Value("TypoAscentIsOffset",      0)
+    SetOS2Value("TypoDescentIsOffset",     0)
+    SetOS2Value("HHeadAscentIsOffset",     0)
+    SetOS2Value("HHeadDescentIsOffset",    0)
+    SetOS2Value("WinAscent",             {{.Ascent}})
+    SetOS2Value("WinDescent",            {{.Descent}})
+    SetOS2Value("TypoAscent",            860)
+    SetOS2Value("TypoDescent",          -140)
+    SetOS2Value("TypoLineGap",             0)
+    SetOS2Value("HHeadAscent",           {{.Ascent}})
+    SetOS2Value("HHeadDescent",         -{{.Descent}})
+    SetOS2Value("HHeadLineGap",            0)
+    SetPanose([2, 11, panoseweight_list[i], 9, 2, 2, 3, 2, 2, 7])
+
+    # Merge Inconsolata with Migu 1M
+    Print("Merge " + sfmono_list[i]:t \
+          + " with " + migu1m_list[i]:t)
+    MergeFonts(sfmono_list[i])
+    MergeFonts(migu1m_list[i])
+
+    # Edit zenkaku space (from ballot box and heavy greek cross)
+    if ("0u{{.ZenkakuSpaceGlyph}}" != "0u3000")
+        Print("Edit zenkaku space")
+        if ("{{.ZenkakuSpaceGlyph}}" == "")
+            Select(0u2610); Copy(); Select(0u3000); Paste()
+            Select(0u271a); Copy(); Select(0u3000); PasteInto()
+            OverlapIntersect()
+        else
+            Select(0u{{.ZenkakuSpaceGlyph}}); Copy(); Select(0u3000); Paste()
+        endif
+    endif
+
+    # Edit zenkaku comma and period
+    Print("Edit zenkaku comma and period")
+    Select(0uff0c); Scale(150, 150, 100, 0); SetWidth(1000)
+    Select(0uff0e); Scale(150, 150, 100, 0); SetWidth(1000)
+
+    # Edit zenkaku colon and semicolon
+    Print("Edit zenkaku colon and semicolon")
+    Select(0uff0c); Copy(); Select(0uff1b); Paste()
+    Select(0uff0e); Copy(); Select(0uff1b); PasteWithOffset(0, 400)
+    CenterInWidth()
+    Select(0uff1a); Paste(); PasteWithOffset(0, 400)
+    CenterInWidth()
+
+    # Edit zenkaku brackets
+    Print("Edit zenkaku brackets")
+    Select(0u0028); Copy(); Select(0uff08); Paste(); Move(250, 0); SetWidth(1000) # (
+    Select(0u0029); Copy(); Select(0uff09); Paste(); Move(250, 0); SetWidth(1000) # )
+    Select(0u005b); Copy(); Select(0uff3b); Paste(); Move(250, 0); SetWidth(1000) # [
+    Select(0u005d); Copy(); Select(0uff3d); Paste(); Move(250, 0); SetWidth(1000) # ]
+    Select(0u007b); Copy(); Select(0uff5b); Paste(); Move(250, 0); SetWidth(1000) # {
+    Select(0u007d); Copy(); Select(0uff5d); Paste(); Move(250, 0); SetWidth(1000) # }
+    Select(0u003c); Copy(); Select(0uff1c); Paste(); Move(250, 0); SetWidth(1000) # <
+    Select(0u003e); Copy(); Select(0uff1e); Paste(); Move(250, 0); SetWidth(1000) # >
+
+    # Edit en and em dashes
+    Print("Edit en and em dashes")
+    Select(0u2013); Copy()
+    PasteWithOffset(200, 0); PasteWithOffset(-200, 0)
+    OverlapIntersect()
+    Select(0u2014); Copy()
+    PasteWithOffset(490, 0); PasteWithOffset(-490, 0)
+    OverlapIntersect()
+
+    # Proccess before saving
+    Print("Process before saving (it may take a few minutes)")
+    Select(".notdef")
+    DetachAndRemoveGlyphs()
+    SelectWorthOutputting()
+    RoundToInt(); RemoveOverlap(); RoundToInt()
+    AutoHint()
+    AutoInstr()
+
+    # Save SFMono-mod
+    if (fontfamilysuffix != "")
+        Print("Save " + fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".ttf")
+        Generate(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".ttf", "", 0x84)
+    else
+        Print("Save " + fontfamily + "-" + fontstyle_list[i] + ".ttf")
+        Generate(fontfamily + "-" + fontstyle_list[i] + ".ttf", "", 0x84)
+    endif
+    Close()
+
+    i += 1
+endloop
+
+Quit()
+
+# vim:se ft=fontforge_script.gotexttmpl:

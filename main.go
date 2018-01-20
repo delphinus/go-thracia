@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	migu1mURL        = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
-	migu1mFile       = "migu1m.zip"
-	modifyMigu1mTmpl = "/assets/modify-migu1m.pe.tmpl"
+	migu1mURL             = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
+	migu1mFile            = "migu1m.zip"
+	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
+	generateSFMonoModTmpl = "/assets/generate-sfmono-mod.pe.tmpl"
 	// SFMonoDir is a dir to store SFMono fonts
 	SFMonoDir = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
 )

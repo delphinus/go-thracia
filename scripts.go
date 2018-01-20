@@ -16,6 +16,7 @@ func scripts(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("cannot find `fontforge` executable")
 	}
+
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
 		"FontForge":  fontforge,
 		"SrcRegular": migu1mTTFs[0],
@@ -24,6 +25,24 @@ func scripts(ctx context.Context) error {
 		"DstBold":    modifiedMigu1mTTFs[1],
 		"ScaleDown":  cliContext(ctx).BoolT("scale-down"),
 		"DstDir":     tempDir(ctx),
+	}); err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
+	} else if err := execScripts(ctx, script); err != nil {
+		return fmt.Errorf("error in execScripts: %v", err)
+	}
+
+	if script, err := generateScripts(ctx, generateSFMonoModTmpl, h{
+		"FontForge":         fontforge,
+		"SFMonoRegular":     SFMonoTTFs[0],
+		"SFMonoBold":        SFMonoTTFs[2],
+		"Migu1mRegular":     migu1mTTFs[0],
+		"Migu1mBold":        migu1mTTFs[1],
+		"FamilyName":        "SFMono",
+		"FamilyNameSuffix":  "",
+		"Version":           "v0.1.0",
+		"Ascent":            1950,
+		"Descent":           494,
+		"ZenkakuSpaceGlyph": "",
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
