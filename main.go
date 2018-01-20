@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -23,6 +24,10 @@ const (
 )
 
 var migu1mTTFs = []string{"migu-1m-regular.ttf", "migu-1m-bold.ttf"}
+var modifiedMigu1mTTFs = []string{
+	"modified-migu-1m-regular.ttf",
+	"modified-migu-1m-bold.ttf",
+}
 
 // SFMonoTTFs is SFMono themselves.
 var SFMonoTTFs = []string{
@@ -31,6 +36,8 @@ var SFMonoTTFs = []string{
 	"SFMono-Bold.otf",
 	"SFMono-BoldItalic.otf",
 }
+
+type h map[string]interface{}
 
 // New returns the App instance.
 func New() *cli.App {
@@ -53,6 +60,10 @@ func flags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  "verbose, vv",
 			Usage: "Print logs verbosely",
+		},
+		cli.BoolTFlag{
+			Name:  "scale-down, s",
+			Usage: "Scale down Migu 1M (default: true)",
 		},
 	}
 }
@@ -80,7 +91,7 @@ func action(c *cli.Context) error {
 	if err := copySFMono(ctx); err != nil {
 		return fmt.Errorf("error in copySFMono: %v", err)
 	}
-	if err := scripts(ctx, modifyMigu1mTmpl, nil); err != nil {
+	if err := scripts(ctx); err != nil {
 		return fmt.Errorf("error in scripts: %v", err)
 	}
 	return nil
@@ -157,12 +168,30 @@ func copySFMono(ctx context.Context) (err error) {
 	return nil
 }
 
+func scripts(ctx context.Context) error {
+	fontforge, err := exec.LookPath("fontforge")
+	if err != nil {
+		return fmt.Errorf("cannot find `fontforge` executable")
+	}
+	if err := generateScripts(ctx, modifyMigu1mTmpl, h{
+		"FontForge":  fontforge,
+		"SrcRegular": migu1mTTFs[0],
+		"SrcBold":    migu1mTTFs[1],
+		"DstRegular": modifiedMigu1mTTFs[0],
+		"DstBold":    modifiedMigu1mTTFs[1],
+		"ScaleDown":  cliContext(ctx).BoolT("scale-down"),
+	}); err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
+	}
+	return nil
+}
+
 func scriptFilename(ctx context.Context, tmpl string) string {
 	filename := strings.TrimSuffix(filepath.Base(tmpl), ".tmpl")
 	return filepath.Join(tempDir(ctx), filename)
 }
 
-func scripts(ctx context.Context, tmpl string, data interface{}) (err error) {
+func generateScripts(ctx context.Context, tmpl string, data interface{}) (err error) {
 	f, err := Assets.Open(tmpl)
 	if err != nil {
 		return fmt.Errorf("error in Open: %v", err)
