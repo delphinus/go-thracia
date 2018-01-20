@@ -67,9 +67,6 @@ func flags() []cli.Flag {
 func action(c *cli.Context) error {
 	ctx := contextWithCLI(context.Background(), c)
 	ctx = contextWithTempDir(ctx)
-	if c.Bool("verbose") {
-		fmt.Fprintf(c.App.ErrWriter, "TempDir: %s\n", tempDir(ctx))
-	}
 	toDL := []*toDownload{}
 	toDL = append(toDL, &toDownload{
 		filename: migu1mFile,
