@@ -57,6 +57,9 @@ func flags() []cli.Flag {
 		cli.BoolTFlag{
 			Name:  "scale-down, s",
 			Usage: "Scale down Migu 1M (default: true)",
+		cli.StringFlag{
+			Name:  "suffix, n",
+			Usage: "Set fontfamily suffix",
 		},
 	}
 }
