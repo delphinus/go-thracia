@@ -1,22 +1,14 @@
-hash: 9f118a203b37632f51ac18926b9acabefbcc08d5f5e73c76684957225fa4fe5d
-updated: 2018-01-20T16:29:18.796977+09:00
+hash: 674140c287e31914adcf9e9c00a6d5c73c63d8c9212cfc31df961887e7c27f37
+updated: 2018-01-20T18:04:45.993501+09:00
 imports:
-- name: github.com/mattn/go-runewidth
-  version: 97311d9f7767e3d6f422ea06661bc2c7a19e8a5d
+- name: github.com/jessevdk/go-assets
+  version: 4f4301a06e153ff90e17793577ab6bf79f8dc5c5
 - name: github.com/urfave/cli
   version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
-- name: golang.org/x/net
-  version: c7086645de248775cbf2373cf5ca4d2fa664b8c1
-  subpackages:
-  - context
 - name: golang.org/x/sync
   version: fd80eb99c8f653c847d294a001bdf2a3a6f768f5
   subpackages:
   - errgroup
-- name: golang.org/x/sys
-  version: a13efeb2fd213cf4be7227992aa54519af3b2ac0
-  subpackages:
-  - unix
 - name: gopkg.in/cheggaaa/pb.v1
   version: 43d64de27312b32812ca7e994fa0bb03ccf08fdf
 testImports: []
