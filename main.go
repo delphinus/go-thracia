@@ -54,10 +54,6 @@ func New() *cli.App {
 func flags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name:  "clear, c",
-			Usage: "Clear all downloads, and run",
-		},
-		cli.BoolFlag{
 			Name:  "verbose, vv",
 			Usage: "Print logs verbosely",
 		},
@@ -79,9 +75,6 @@ func action(c *cli.Context) error {
 		filename: migu1mFile,
 		URL:      migu1mURL,
 	})
-	if err := clear(ctx, &toDL); err != nil {
-		return fmt.Errorf("error in clear: %v", err)
-	}
 	if err := download(ctx, toDL); err != nil {
 		return fmt.Errorf("error in download: %v", err)
 	}
@@ -94,24 +87,6 @@ func action(c *cli.Context) error {
 	if err := scripts(ctx); err != nil {
 		return fmt.Errorf("error in scripts: %v", err)
 	}
-	return nil
-}
-
-func clear(ctx context.Context, toDL *[]*toDownload) error {
-	cleared := make([]*toDownload, 0, len(*toDL))
-	for _, dl := range *toDL {
-		if _, err := os.Stat(dl.filename); os.IsNotExist(err) {
-			cleared = append(cleared, dl)
-		} else if err != nil {
-			return fmt.Errorf("error in Stat: %v", err)
-		} else if cliContext(ctx).Bool("clear") {
-			if err := os.Remove(dl.filename); err != nil {
-				return fmt.Errorf("error in Remove: %v", err)
-			}
-			cleared = append(cleared, dl)
-		}
-	}
-	*toDL = cleared
 	return nil
 }
 
@@ -156,7 +131,7 @@ func copySFMono(ctx context.Context) (err error) {
 		if err != nil {
 			return fmt.Errorf("error in Open: %v", err)
 		}
-		dst, err := os.Create(f)
+		dst, err := os.Create(pathInTempDir(ctx, f))
 		if err != nil {
 			return fmt.Errorf("error in Create: %v", err)
 		}
@@ -188,7 +163,7 @@ func scripts(ctx context.Context) error {
 
 func scriptFilename(ctx context.Context, tmpl string) string {
 	filename := strings.TrimSuffix(filepath.Base(tmpl), ".tmpl")
-	return filepath.Join(tempDir(ctx), filename)
+	return pathInTempDir(ctx, filename)
 }
 
 func generateScripts(ctx context.Context, tmpl string, data interface{}) (err error) {

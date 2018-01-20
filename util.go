@@ -2,8 +2,10 @@ package thracia
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/urfave/cli"
 )
@@ -40,6 +42,11 @@ func tempDir(ctx context.Context) string {
 		return v
 	}
 	return ""
+}
+
+func pathInTempDir(ctx context.Context, path string) string {
+	p := filepath.Join(tempDir(ctx), path)
+	return p
 }
 
 func checkClose(c io.Closer, err *error) {

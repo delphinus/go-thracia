@@ -82,7 +82,7 @@ func fetch(ctx context.Context, dl *toDownload) (err error) {
 	b.ShowSpeed = true
 	dl.pb <- b
 
-	file, err := os.Create(dl.filename)
+	file, err := os.Create(pathInTempDir(ctx, dl.filename))
 	if err != nil {
 		return fmt.Errorf("error in Create: %v", err)
 	}
