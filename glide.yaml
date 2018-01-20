@@ -1,7 +1,9 @@
-package: github.com/delphinus/sfmono-mod
+package: github.com/delphinus/go-thracia
 import:
 - package: gopkg.in/cheggaaa/pb.v1
   version: v1.0.20
 - package: golang.org/x/sync
   subpackages:
   - errgroup
+- package: github.com/urfave/cli
+  version: ^1.20.0

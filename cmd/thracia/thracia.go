@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -9,8 +8,7 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	if err := thracia.Run(ctx); err != nil {
+	if err := thracia.New().Run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v", err)
 		os.Exit(1)
 	}
