@@ -14,9 +14,19 @@ import (
 const (
 	migu1mURL  = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
 	migu1mFile = "migu1m.zip"
+	// SFMonoDir is a dir to store SFMono fonts
+	SFMonoDir = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
 )
 
 var migu1mTTFs = []string{"migu-1m-regular.ttf", "migu-1m-bold.ttf"}
+
+// SFMonoTTFs is SFMono themselves.
+var SFMonoTTFs = []string{
+	"SFMono-Regular.otf",
+	"SFMono-RegularItalic.otf",
+	"SFMono-Bold.otf",
+	"SFMono-BoldItalic.otf",
+}
 
 // New returns the App instance.
 func New() *cli.App {
@@ -54,6 +64,9 @@ func action(c *cli.Context) error {
 	}
 	if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
 		return fmt.Errorf("error in extract: %v", err)
+	}
+	if err := copySFMono(ctx); err != nil {
+		return fmt.Errorf("error in copySFMono: %v", err)
 	}
 	return nil
 }
@@ -100,6 +113,30 @@ func extract(ctx context.Context, zipFile string, members []string) (err error) 
 			if _, err := io.Copy(dst, src); err != nil {
 				return fmt.Errorf("error in Copy: %v", err)
 			}
+		}
+	}
+	return nil
+}
+
+func copySFMono(ctx context.Context) (err error) {
+	for _, f := range SFMonoTTFs {
+		font := filepath.Join(SFMonoDir, f)
+		if _, err := os.Stat(font); os.IsNotExist(err) {
+			return fmt.Errorf("cannot find font: %s", font)
+		} else if err != nil {
+			return fmt.Errorf("error in Stat: %v", err)
+		}
+		src, err := os.Open(font)
+		if err != nil {
+			return fmt.Errorf("error in Open: %v", err)
+		}
+		dst, err := os.Create(f)
+		if err != nil {
+			return fmt.Errorf("error in Create: %v", err)
+		}
+		defer checkClose(dst, &err)
+		if _, err := io.Copy(dst, src); err != nil {
+			return fmt.Errorf("error in Copy: %v", err)
 		}
 	}
 	return nil
