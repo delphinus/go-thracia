@@ -46,6 +46,10 @@ func flags() []cli.Flag {
 			Name:  "clear, c",
 			Usage: "Clear all downloads, and run",
 		},
+		cli.BoolFlag{
+			Name:  "verbose, vv",
+			Usage: "Print logs verbosely",
+		},
 	}
 }
 
