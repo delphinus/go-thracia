@@ -3,12 +3,12 @@ package thracia
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 func scripts(ctx context.Context) error {
