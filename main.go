@@ -30,7 +30,7 @@ func New() *cli.App {
 func flags() []cli.Flag { return nil }
 
 func action(c *cli.Context) error {
-	ctx := context.Background()
+	ctx := contextWithCLI(context.Background(), c)
 	toDL := []*toDownload{}
 	if _, err := os.Stat(migu1mFile); os.IsNotExist(err) {
 		toDL = append(toDL, &toDownload{
