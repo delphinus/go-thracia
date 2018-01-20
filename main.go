@@ -99,7 +99,7 @@ func extract(ctx context.Context, zipFile string, members []string) (err error) 
 				return fmt.Errorf("error in Open: %v", err)
 			}
 			defer checkClose(src, &err)
-			dst, err := os.Create(m)
+			dst, err := os.Create(pathInTempDir(ctx, m))
 			if err != nil {
 				return fmt.Errorf("error in Create: %v", err)
 			}

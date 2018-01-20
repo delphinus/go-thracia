@@ -66,6 +66,7 @@ func generateScripts(ctx context.Context, tmpl string, data interface{}) (script
 func execScripts(ctx context.Context, script string) error {
 	c := cliContext(ctx)
 	cmd := exec.CommandContext(ctx, script)
+	cmd.Dir = tempDir(ctx)
 	cmd.Stdout = c.App.Writer
 	cmd.Stderr = c.App.ErrWriter
 	if err := cmd.Run(); err != nil {
