@@ -15,6 +15,7 @@ const (
 	version               = "v0.1.0"
 	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
 	generateSFMonoModTmpl = "/assets/generate-sfmono-mod.pe.tmpl"
+	generateObliqueTmpl   = "/assets/generate-oblique.pe.tmpl"
 	// SFMonoDir is a dir to store SFMono fonts
 	SFMonoDir  = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
 	familyName = "SFMono"

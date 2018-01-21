@@ -1,0 +1,48 @@
+#!{{.FontForge}} -script
+
+filename_list = ["{{.SrcRegular}}", "{{.SrcBold}}"]
+filename_family = "{{.FilenameFamily}}"
+fontfamily = "{{.FontFamily}}"
+fontstyle_list = ["Regular", "Bold"]
+filename_font_style_list = ["regular", "bold"]
+
+i = 0
+while (i < SizeOf(fontstyle_list))
+
+    input_style = fontstyle_list[i]
+    if (input_style == "Regular")
+        output_style = "oblique"
+        style        = "Oblique"
+    else
+        output_style = filename_font_style_list[i] + "-oblique"
+        style        = input_style + " Oblique"
+    endif
+
+    Open(filename_list[i])
+
+    Reencode("unicode")
+
+    SetFontNames(filename_family + "-" + output_style, \
+            fontfamily, \
+            fontfamily + " " + style, \
+            style)
+    SetTTFName(0x409, 2, style)
+    SetTTFName(0x409, 3, "FontForge 2.0 : " + $fullname + " : " + Strftime("%d-%m-%Y", 0))
+
+    SelectWorthOutputting()
+
+    Transform(100, 0, 20, 100, 0, 0)
+
+    RoundToInt()
+    RemoveOverlap()
+    RoundToInt()
+
+    Generate(filename_family + "-" + output_style + ".ttf", "", 0x84)
+    Close()
+
+    i += 1
+endloop
+
+Quit()
+
+# vim:se ft=fontforge_script.gotexttmpl:

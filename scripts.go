@@ -18,6 +18,18 @@ func scripts(ctx context.Context) error {
 		return fmt.Errorf("cannot find `fontforge` executable")
 	}
 
+	if script, err := generateScripts(ctx, generateObliqueTmpl, h{
+		"FontForge":      fontforge,
+		"SrcRegular":     migu1mTTFs[0],
+		"SrcBold":        migu1mTTFs[1],
+		"FilenameFamily": "migu-1m",
+		"FontFamily":     "Migu 1M",
+	}); err != nil {
+		return fmt.Errorf("error in script: %v", err)
+	} else if err := execScripts(ctx, script); err != nil {
+		return fmt.Errorf("error in execScripts: %v", err)
+	}
+
 	// Glyphs of SFMono has this metrics:
 	// h: 1638 + 410 = 2048
 	// w: 1266
