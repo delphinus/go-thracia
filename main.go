@@ -67,7 +67,7 @@ func flags() []cli.Flag {
 			Usage: "print logs verbosely",
 		},
 		cli.StringFlag{
-			Name:  "suffix, n",
+			Name:  "suffix, s",
 			Usage: "set fontfamily suffix",
 		},
 	}
