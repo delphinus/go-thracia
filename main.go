@@ -13,8 +13,6 @@ import (
 
 const (
 	version               = "v0.1.0"
-	migu1mURL             = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
-	migu1mFile            = "migu1m.zip"
 	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
 	generateSFMonoModTmpl = "/assets/generate-sfmono-mod.pe.tmpl"
 	// SFMonoDir is a dir to store SFMono fonts
@@ -69,23 +67,20 @@ func flags() []cli.Flag {
 func action(c *cli.Context) error {
 	ctx := contextWithCLI(context.Background(), c)
 	ctx = contextWithTempDir(ctx)
-	toDL := []*toDownload{}
-	toDL = append(toDL, &toDownload{
-		filename: migu1mFile,
-		URL:      migu1mURL,
-	})
-	if err := download(ctx, toDL); err != nil {
+	if err := download(ctx, files()); err != nil {
 		return fmt.Errorf("error in download: %v", err)
 	}
-	if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
-		return fmt.Errorf("error in extract: %v", err)
-	}
-	if err := copySFMono(ctx); err != nil {
-		return fmt.Errorf("error in copySFMono: %v", err)
-	}
-	if err := scripts(ctx); err != nil {
-		return fmt.Errorf("error in scripts: %v", err)
-	}
+	/*
+		if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
+			return fmt.Errorf("error in extract: %v", err)
+		}
+		if err := copySFMono(ctx); err != nil {
+			return fmt.Errorf("error in copySFMono: %v", err)
+		}
+		if err := scripts(ctx); err != nil {
+			return fmt.Errorf("error in scripts: %v", err)
+		}
+	*/
 	return nil
 }
 
