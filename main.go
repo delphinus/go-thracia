@@ -21,10 +21,17 @@ const (
 	familyName = "SFMono"
 )
 
-var migu1mTTFs = []string{"migu-1m-regular.ttf", "migu-1m-bold.ttf"}
+var migu1mTTFs = []string{
+	"migu-1m-regular.ttf",
+	"migu-1m-bold.ttf",
+	"migu-1m-oblique.ttf",
+	"migu-1m-bold-oblique.ttf",
+}
 var modifiedMigu1mTTFs = []string{
 	"modified-migu-1m-regular.ttf",
 	"modified-migu-1m-bold.ttf",
+	"modified-migu-1m-oblique.ttf",
+	"modified-migu-1m-bold-oblique.ttf",
 }
 
 // SFMonoTTFs is SFMono themselves.

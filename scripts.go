@@ -36,15 +36,19 @@ func scripts(ctx context.Context) error {
 	// So zenkaku glyphs should have padding on left and right:
 	// (1266 * 2 - 2048) / 2 = 242
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
-		"FontForge":  fontforge,
-		"Ascent":     1638,
-		"Descent":    410,
-		"Padding":    242,
-		"SrcRegular": migu1mTTFs[0],
-		"SrcBold":    migu1mTTFs[1],
-		"DstRegular": modifiedMigu1mTTFs[0],
-		"DstBold":    modifiedMigu1mTTFs[1],
-		"DstDir":     tempDir(ctx),
+		"FontForge":      fontforge,
+		"Ascent":         1638,
+		"Descent":        410,
+		"Padding":        242,
+		"SrcRegular":     migu1mTTFs[0],
+		"SrcBold":        migu1mTTFs[1],
+		"SrcOblique":     migu1mTTFs[2],
+		"SrcBoldOblique": migu1mTTFs[3],
+		"DstRegular":     modifiedMigu1mTTFs[0],
+		"DstBold":        modifiedMigu1mTTFs[1],
+		"DstOblique":     modifiedMigu1mTTFs[2],
+		"DstBoldOblique": modifiedMigu1mTTFs[3],
+		"DstDir":         tempDir(ctx),
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
@@ -55,8 +59,12 @@ func scripts(ctx context.Context) error {
 		"FontForge":         fontforge,
 		"SFMonoRegular":     SFMonoTTFs[0],
 		"SFMonoBold":        SFMonoTTFs[1],
-		"Migu1mRegular":     modifiedMigu1mTTFs[0],
-		"Migu1mBold":        modifiedMigu1mTTFs[1],
+		"SFMonoItalic":      SFMonoTTFs[2],
+		"SFMonoBoldItalic":  SFMonoTTFs[3],
+		"Migu1MRegular":     modifiedMigu1mTTFs[0],
+		"Migu1MBold":        modifiedMigu1mTTFs[1],
+		"Migu1MOblique":     modifiedMigu1mTTFs[2],
+		"Migu1MBoldOblique": modifiedMigu1mTTFs[3],
 		"FamilyName":        familyName,
 		"FamilyNameSuffix":  c.String("suffix"),
 		"Version":           version,
@@ -128,9 +136,11 @@ func execFontPatcher(ctx context.Context) error {
 	if err := os.Chmod(fp, 0755); err != nil {
 		return fmt.Errorf("error in Chmod: %v", err)
 	}
-	mod := modified(SFMonoTTFs[0], cliContext(ctx).String("suffix"))
-	if err := execScripts(ctx, fp, "-c", "-q", "-out", "build", mod); err != nil {
-		return fmt.Errorf("error in execScripts: %v", err)
+	for _, f := range SFMonoTTFs {
+		mod := modified(f, cliContext(ctx).String("suffix"))
+		if err := execScripts(ctx, fp, "-c", "-q", "-out", "build", mod); err != nil {
+			return fmt.Errorf("error in execScripts: %v", err)
+		}
 	}
 	return nil
 }

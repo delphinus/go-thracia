@@ -4,19 +4,17 @@
 Print("Generate SFMono-mod")
 
 # Set parameters
-#sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}"]
-sfmono_list  = ["{{.SFMonoRegular}}"]
-#migu1m_list       = ["{{.Migu1mRegular}}", "{{.Migu1mBold}}"]
-migu1m_list       = ["{{.Migu1mRegular}}"]
+sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}", "{{.SFMonoItalic}}", "{{.SFMonoBoldItalic}}"]
+migu1m_list       = ["{{.Migu1MRegular}}", "{{.Migu1MBold}}", "{{.Migu1MOblique}}", "{{.Migu1MBoldOblique}}"]
 fontfamily        = "{{.FamilyName}}"
 fontfamilysuffix  = "{{.FamilyNameSuffix}}"
-#fontstyle_list    = ["Regular", "Bold"]
-fontstyle_list    = ["Regular"]
-#fontweight_list   = [400,       700]
-fontweight_list   = [400]
-#panoseweight_list = [5,         8]
-panoseweight_list = [5]
+fontstyle_list    = ["Regular", "Bold", "Italic", "Bold Italic"]
+filename_fontstyle_list    = ["Regular", "Bold", "RegularItalic", "BoldItalic"]
+fontweight_list   = [400, 700, 400, 700]
+panose_weight_list = [5, 8, 5, 8]
+panose_letterform_list = [2, 2, 9, 9]
 copyright         = ""
+vendor_id = "APPL"
 version           = "{{.Version}}"
 
 # Begin loop of regular and bold
@@ -30,13 +28,13 @@ while (i < SizeOf(fontstyle_list))
 
     # Set configuration
     if (fontfamilysuffix != "")
-        SetFontNames(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i], \
+        SetFontNames(fontfamily + fontfamilysuffix + "-" + filename_fontstyle_list[i], \
                      fontfamily + " " + fontfamilysuffix, \
                      fontfamily + " " + fontfamilysuffix + " " + fontstyle_list[i], \
                      fontstyle_list[i], \
                      copyright, version)
     else
-        SetFontNames(fontfamily + "-" + fontstyle_list[i], \
+        SetFontNames(fontfamily + "-" + filename_fontstyle_list[i], \
                      fontfamily, \
                      fontfamily + " " + fontstyle_list[i], \
                      fontstyle_list[i], \
@@ -45,26 +43,26 @@ while (i < SizeOf(fontstyle_list))
     SetTTFName(0x409, 2, fontstyle_list[i])
     SetTTFName(0x409, 3, "FontForge 2.0 : " + $fullname + " : " + Strftime("%d-%m-%Y", 0))
     ScaleToEm({{.Ascent}}, {{.Descent}})
-    SetOS2Value("Weight", fontweight_list[i]) # Book or Bold
-    SetOS2Value("Width",                   5) # Medium
-    SetOS2Value("FSType",                  0)
-    SetOS2Value("VendorID",           "PfEd")
+    SetOS2Value("Weight",               fontweight_list[i]) # Book or Bold
+    SetOS2Value("Width",                5) # Medium
+    SetOS2Value("FSType",               0)
+    SetOS2Value("VendorID",             vendor_id)
     SetOS2Value("IBMFamily",            2057) # SS Typewriter Gothic
-    SetOS2Value("WinAscentIsOffset",       0)
-    SetOS2Value("WinDescentIsOffset",      0)
-    SetOS2Value("TypoAscentIsOffset",      0)
-    SetOS2Value("TypoDescentIsOffset",     0)
-    SetOS2Value("HHeadAscentIsOffset",     0)
-    SetOS2Value("HHeadDescentIsOffset",    0)
-    SetOS2Value("WinAscent",             {{.WinAscent}})
-    SetOS2Value("WinDescent",            {{.WinDescent}})
-    SetOS2Value("TypoAscent",            {{.Ascent}})
+    SetOS2Value("WinAscentIsOffset",    0)
+    SetOS2Value("WinDescentIsOffset",   0)
+    SetOS2Value("TypoAscentIsOffset",   0)
+    SetOS2Value("TypoDescentIsOffset",  0)
+    SetOS2Value("HHeadAscentIsOffset",  0)
+    SetOS2Value("HHeadDescentIsOffset", 0)
+    SetOS2Value("WinAscent",            {{.WinAscent}})
+    SetOS2Value("WinDescent",           {{.WinDescent}})
+    SetOS2Value("TypoAscent",           {{.Ascent}})
     SetOS2Value("TypoDescent",          -{{.Descent}})
-    SetOS2Value("TypoLineGap",             0)
-    SetOS2Value("HHeadAscent",           {{.WinAscent}})
+    SetOS2Value("TypoLineGap",          0)
+    SetOS2Value("HHeadAscent",          {{.WinAscent}})
     SetOS2Value("HHeadDescent",         -{{.WinDescent}})
-    SetOS2Value("HHeadLineGap",            0)
-    SetPanose([2, 11, panoseweight_list[i], 9, 2, 2, 3, 2, 2, 7])
+    SetOS2Value("HHeadLineGap",         0)
+    SetPanose([2, 11, panose_weight_list[i], 9, 2, 2, 3, panose_letterform_list[i], 2, 7])
 
     # Merge Inconsolata with Migu 1M
     Print("Merge " + sfmono_list[i]:t \
@@ -128,11 +126,11 @@ while (i < SizeOf(fontstyle_list))
 
     # Save SFMono-mod
     if (fontfamilysuffix != "")
-        Print("Save " + fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".otf")
-        Generate(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".otf", "", 0x84)
+        Print("Save " + fontfamily + fontfamilysuffix + "-" + filename_fontstyle_list[i] + ".otf")
+        Generate(fontfamily + fontfamilysuffix + "-" + filename_fontstyle_list[i] + ".otf", "", 0x84)
     else
-        Print("Save " + fontfamily + "-" + fontstyle_list[i] + ".otf")
-        Generate(fontfamily + "-" + fontstyle_list[i] + ".otf", "", 0x84)
+        Print("Save " + fontfamily + "-" + filename_fontstyle_list[i] + ".otf")
+        Generate(fontfamily + "-" + filename_fontstyle_list[i] + ".otf", "", 0x84)
     endif
     Close()
 
