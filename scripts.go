@@ -54,7 +54,7 @@ func scripts(ctx context.Context) error {
 	if script, err := generateScripts(ctx, generateSFMonoModTmpl, h{
 		"FontForge":         fontforge,
 		"SFMonoRegular":     SFMonoTTFs[0],
-		"SFMonoBold":        SFMonoTTFs[2],
+		"SFMonoBold":        SFMonoTTFs[1],
 		"Migu1mRegular":     modifiedMigu1mTTFs[0],
 		"Migu1mBold":        modifiedMigu1mTTFs[1],
 		"FamilyName":        familyName,

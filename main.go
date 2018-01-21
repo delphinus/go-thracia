@@ -30,8 +30,8 @@ var modifiedMigu1mTTFs = []string{
 // SFMonoTTFs is SFMono themselves.
 var SFMonoTTFs = []string{
 	"SFMono-Regular.otf",
-	"SFMono-RegularItalic.otf",
 	"SFMono-Bold.otf",
+	"SFMono-RegularItalic.otf",
 	"SFMono-BoldItalic.otf",
 }
 
