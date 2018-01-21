@@ -67,7 +67,11 @@ func flags() []cli.Flag {
 func action(c *cli.Context) error {
 	ctx := contextWithCLI(context.Background(), c)
 	ctx = contextWithTempDir(ctx)
-	if err := download(ctx, files()); err != nil {
+	toDL, err := files(ctx)
+	if err != nil {
+		return fmt.Errorf("error in files: %v", err)
+	}
+	if err := download(ctx, toDL); err != nil {
 		return fmt.Errorf("error in download: %v", err)
 	}
 	/*
