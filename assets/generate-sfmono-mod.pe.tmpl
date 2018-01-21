@@ -128,11 +128,11 @@ while (i < SizeOf(fontstyle_list))
 
     # Save SFMono-mod
     if (fontfamilysuffix != "")
-        Print("Save " + fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".ttf")
-        Generate(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".ttf", "", 0x84)
+        Print("Save " + fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".otf")
+        Generate(fontfamily + fontfamilysuffix + "-" + fontstyle_list[i] + ".otf", "", 0x84)
     else
-        Print("Save " + fontfamily + "-" + fontstyle_list[i] + ".ttf")
-        Generate(fontfamily + "-" + fontstyle_list[i] + ".ttf", "", 0x84)
+        Print("Save " + fontfamily + "-" + fontstyle_list[i] + ".otf")
+        Generate(fontfamily + "-" + fontstyle_list[i] + ".otf", "", 0x84)
     endif
     Close()
 
