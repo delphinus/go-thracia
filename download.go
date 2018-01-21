@@ -55,9 +55,11 @@ func showBar(ctx context.Context, toDL []*toDownload, filenameLen int) error {
 			pbs[i] = b.Prefix(prefix)
 		}
 	}
-	if _, err := pb.StartPool(pbs...); err != nil {
+	p, err := pb.StartPool(pbs...)
+	if err != nil {
 		return fmt.Errorf("error in StartPool: %v", err)
 	}
+	p.RefreshRate = 10 * time.Millisecond
 	return nil
 }
 
@@ -78,8 +80,7 @@ func fetch(ctx context.Context, dl *toDownload) (err error) {
 	}
 
 	total, _ := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
-	b := pb.New64(total).SetUnits(pb.U_BYTES).SetRefreshRate(time.Millisecond * 10).SetWidth(80)
-	b.ShowSpeed = true
+	b := pb.New64(total).SetUnits(pb.U_BYTES)
 	dl.pb <- b
 
 	file, err := os.Create(pathInTempDir(ctx, dl.filename))
