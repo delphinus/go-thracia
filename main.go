@@ -16,7 +16,8 @@ const (
 	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
 	generateSFMonoModTmpl = "/assets/generate-sfmono-mod.pe.tmpl"
 	// SFMonoDir is a dir to store SFMono fonts
-	SFMonoDir = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
+	SFMonoDir  = "/Applications/Utilities/Terminal.app/Contents/Resources/Fonts"
+	familyName = "SFMono"
 )
 
 var migu1mTTFs = []string{"migu-1m-regular.ttf", "migu-1m-bold.ttf"}
@@ -74,17 +75,15 @@ func action(c *cli.Context) error {
 	if err := download(ctx, toDL); err != nil {
 		return fmt.Errorf("error in download: %v", err)
 	}
-	/*
-		if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
-			return fmt.Errorf("error in extract: %v", err)
-		}
-		if err := copySFMono(ctx); err != nil {
-			return fmt.Errorf("error in copySFMono: %v", err)
-		}
-		if err := scripts(ctx); err != nil {
-			return fmt.Errorf("error in scripts: %v", err)
-		}
-	*/
+	if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
+		return fmt.Errorf("error in extract: %v", err)
+	}
+	if err := copySFMono(ctx); err != nil {
+		return fmt.Errorf("error in copySFMono: %v", err)
+	}
+	if err := scripts(ctx); err != nil {
+		return fmt.Errorf("error in scripts: %v", err)
+	}
 	return nil
 }
 

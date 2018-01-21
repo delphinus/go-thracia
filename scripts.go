@@ -45,7 +45,7 @@ func scripts(ctx context.Context) error {
 		"SFMonoBold":        SFMonoTTFs[2],
 		"Migu1mRegular":     modifiedMigu1mTTFs[0],
 		"Migu1mBold":        modifiedMigu1mTTFs[1],
-		"FamilyName":        "SFMono",
+		"FamilyName":        familyName,
 		"FamilyNameSuffix":  c.String("suffix"),
 		"Version":           version,
 		"WinAscent":         1950,
@@ -57,6 +57,10 @@ func scripts(ctx context.Context) error {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
 		return fmt.Errorf("error in execScripts: %v", err)
+	}
+
+	if err := execFontPatcher(ctx); err != nil {
+		return fmt.Errorf("error in execFontPatcher: %v", err)
 	}
 	return nil
 }
@@ -92,9 +96,9 @@ func generateScripts(ctx context.Context, tmpl string, data interface{}) (script
 	return
 }
 
-func execScripts(ctx context.Context, script string) error {
+func execScripts(ctx context.Context, script string, args ...string) error {
 	c := cliContext(ctx)
-	cmd := exec.CommandContext(ctx, script)
+	cmd := exec.CommandContext(ctx, script, args...)
 	cmd.Dir = tempDir(ctx)
 	cmd.Stdout = c.App.Writer
 	cmd.Stderr = c.App.ErrWriter
@@ -102,4 +106,20 @@ func execScripts(ctx context.Context, script string) error {
 		return fmt.Errorf("error in Run: %v", err)
 	}
 	return nil
+}
+
+func execFontPatcher(ctx context.Context) error {
+	fp := pathInTempDir(ctx, fontPatcher)
+	if err := os.Chmod(fp, 0755); err != nil {
+		return fmt.Errorf("error in Chmod: %v", err)
+	}
+	mod := modified(SFMonoTTFs[0], cliContext(ctx).String("suffix"))
+	if err := execScripts(ctx, fp, "-c", "-q", "-out", "build", mod); err != nil {
+		return fmt.Errorf("error in execScripts: %v", err)
+	}
+	return nil
+}
+
+func modified(orig, suffix string) string {
+	return strings.Replace(orig, familyName, familyName+suffix, 1)
 }

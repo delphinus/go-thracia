@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	migu1mFile = "migu1m.zip"
-	migu1mURL  = "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip"
-	glyphsDir  = "src/glyphs/"
+	migu1mFile  = "migu1m.zip"
+	glyphsDir   = "src/glyphs/"
+	fontPatcher = "font-patcher"
 )
 
 func files(ctx context.Context) ([]*toDownload, error) {
@@ -21,7 +21,15 @@ func files(ctx context.Context) ([]*toDownload, error) {
 	return []*toDownload{
 		{
 			filename: migu1mFile,
-			URL:      migu1mURL,
+			URL:      "https://osdn.jp/frs/redir.php?m=gigenet&f=%2Fmix-mplus-ipa%2F63545%2Fmigu-1m-20150712.zip",
+		},
+		{
+			filename: fontPatcher,
+			URL:      "https://github.com/delphinus/nerd-fonts-simple/raw/master/font-patcher",
+		},
+		{
+			filename: "changelog.md",
+			URL:      "https://github.com/delphinus/nerd-fonts-simple/raw/master/changelog.md",
 		},
 		{
 			filename: glyphsDir + "devicons.ttf",
