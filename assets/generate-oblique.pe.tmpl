@@ -1,13 +1,13 @@
 #!{{.FontForge}} -script
 
-filename_list = ["{{.SrcRegular}}", "{{.SrcBold}}"]
+filename_list = [{{.Filenames}}]
 filename_family = "{{.FilenameFamily}}"
 fontfamily = "{{.FontFamily}}"
 fontstyle_list = ["Regular", "Bold"]
 filename_font_style_list = ["regular", "bold"]
 
 i = 0
-while (i < SizeOf(fontstyle_list))
+while (i < SizeOf(filename_list))
 
     input_style = fontstyle_list[i]
     if (input_style == "Regular")

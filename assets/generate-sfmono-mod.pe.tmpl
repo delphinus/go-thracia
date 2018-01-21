@@ -4,8 +4,8 @@
 Print("Generate SFMono-mod")
 
 # Set parameters
-sfmono_list  = ["{{.SFMonoRegular}}", "{{.SFMonoBold}}", "{{.SFMonoItalic}}", "{{.SFMonoBoldItalic}}"]
-migu1m_list       = ["{{.Migu1MRegular}}", "{{.Migu1MBold}}", "{{.Migu1MOblique}}", "{{.Migu1MBoldOblique}}"]
+hankaku_list  = [{{.Hankakus}}]
+zenkaku_list       = [{{.Zenkakus}}]
 fontfamily        = "{{.FamilyName}}"
 fontfamilysuffix  = "{{.FamilyNameSuffix}}"
 fontstyle_list    = ["Regular", "Bold", "Italic", "Bold Italic"]
@@ -19,7 +19,7 @@ version           = "{{.Version}}"
 
 # Begin loop of regular and bold
 i = 0
-while (i < SizeOf(fontstyle_list))
+while (i < SizeOf(hankaku_list))
     # Open new file
     New()
 
@@ -65,10 +65,10 @@ while (i < SizeOf(fontstyle_list))
     SetPanose([2, 11, panose_weight_list[i], 9, 2, 2, 3, panose_letterform_list[i], 2, 7])
 
     # Merge Inconsolata with Migu 1M
-    Print("Merge " + sfmono_list[i]:t \
-          + " with " + migu1m_list[i]:t)
-    MergeFonts(sfmono_list[i])
-    MergeFonts(migu1m_list[i])
+    Print("Merge " + hankaku_list[i]:t \
+          + " with " + zenkaku_list[i]:t)
+    MergeFonts(hankaku_list[i])
+    MergeFonts(zenkaku_list[i])
 
     # Edit zenkaku space (from ballot box and heavy greek cross)
     if ("0u{{.ZenkakuSpaceGlyph}}" != "0u3000")

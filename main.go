@@ -70,12 +70,31 @@ func flags() []cli.Flag {
 			Name:  "suffix, s",
 			Usage: "set fontfamily suffix",
 		},
+		cli.BoolFlag{
+			Name:  "download-only",
+			Usage: "it prepares files only, and does not generate (default: false)",
+		},
+		cli.BoolTFlag{
+			Name:  "nerd-fonts, n",
+			Usage: "generate fonts with nerd-fonts (default: true)",
+		},
+		cli.BoolTFlag{
+			Name:  "bold, b",
+			Usage: "generate bold fonts (default: true)",
+		},
+		cli.BoolTFlag{
+			Name:  "italic, i",
+			Usage: "generate italic fonts (default: true)",
+		},
 	}
 }
 
 func action(c *cli.Context) error {
 	ctx := contextWithCLI(context.Background(), c)
 	ctx = contextWithTempDir(ctx)
+	if err := copySFMono(ctx); err != nil {
+		return fmt.Errorf("error in copySFMono: %v", err)
+	}
 	toDL, err := files(ctx)
 	if err != nil {
 		return fmt.Errorf("error in files: %v", err)
@@ -86,8 +105,8 @@ func action(c *cli.Context) error {
 	if err := extract(ctx, migu1mFile, migu1mTTFs); err != nil {
 		return fmt.Errorf("error in extract: %v", err)
 	}
-	if err := copySFMono(ctx); err != nil {
-		return fmt.Errorf("error in copySFMono: %v", err)
+	if c.Bool("download-only") {
+		return nil
 	}
 	if err := scripts(ctx); err != nil {
 		return fmt.Errorf("error in scripts: %v", err)
