@@ -110,6 +110,9 @@ func generateScripts(ctx context.Context, tmpl string, data interface{}) (script
 
 func execScripts(ctx context.Context, script string, args ...string) error {
 	c := cliContext(ctx)
+	if c.Bool("verbose") {
+		fmt.Fprintf(c.App.Writer, "%s %v\n", script, args)
+	}
 	cmd := exec.CommandContext(ctx, script, args...)
 	cmd.Dir = tempDir(ctx)
 	cmd.Stdout = c.App.Writer
