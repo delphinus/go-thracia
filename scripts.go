@@ -98,17 +98,17 @@ func generateSFMonoMod(ctx context.Context, fontforge string) error {
 	var hankakus, zenkakus string
 	if c.BoolT("bold") && c.BoolT("italic") {
 		hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
-			migu1mTTFs[0], migu1mTTFs[1], migu1mTTFs[2], migu1mTTFs[3])
+			SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
 		zenkakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
 			modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1], modifiedMigu1mTTFs[2], modifiedMigu1mTTFs[3])
 	} else if c.BoolT("bold") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, migu1mTTFs[0], migu1mTTFs[1])
+		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1])
 	} else if c.BoolT("italic") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, migu1mTTFs[0], migu1mTTFs[2])
+		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[2])
 	} else {
-		hankakus = fmt.Sprintf(`"%s"`, migu1mTTFs[0])
+		hankakus = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
 		zenkakus = fmt.Sprintf(`"%s"`, modifiedMigu1mTTFs[0])
 	}
 	if script, err := generateScripts(ctx, generateSFMonoModTmpl, h{
