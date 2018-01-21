@@ -85,7 +85,6 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 		"Padding":   242,
 		"Inputs":    inputs,
 		"Outputs":   outputs,
-		"DstDir":    tempDir(ctx),
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
