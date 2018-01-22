@@ -8,3 +8,6 @@ import:
 - package: github.com/urfave/cli
   version: ^1.20.0
 - package: github.com/jessevdk/go-assets
+- package: golang.org/x/sys
+  subpackages:
+  - unix
