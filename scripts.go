@@ -37,7 +37,7 @@ func generateOblique(ctx context.Context, fontforge string) error {
 		return nil
 	}
 	filenames := ""
-	if c.BoolT("bool") {
+	if c.BoolT("bold") {
 		filenames = fmt.Sprintf(`"%s", "%s"`, migu1mTTFs[0], migu1mTTFs[1])
 	} else {
 		filenames = fmt.Sprintf(`"%s"`, migu1mTTFs[0])
