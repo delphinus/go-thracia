@@ -37,6 +37,7 @@ while (i < SizeOf(filename_list))
     RemoveOverlap()
     RoundToInt()
 
+    Print("Generate " + filename_family + "-" + output_style + ".ttf")
     Generate(filename_family + "-" + output_style + ".ttf", "", 0x84)
     Close()
 
