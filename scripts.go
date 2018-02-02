@@ -2,6 +2,7 @@ package thracia
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,7 +15,7 @@ import (
 func scripts(ctx context.Context) error {
 	fontforge, err := exec.LookPath("fontforge")
 	if err != nil {
-		return fmt.Errorf("cannot find `fontforge` executable")
+		return errors.New("cannot find `fontforge` executable")
 	}
 	if err := generateOblique(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in generateOblique: %v", err)
@@ -25,7 +26,11 @@ func scripts(ctx context.Context) error {
 	if err := generateSFMonoMod(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in generateSFMonoMod: %v", err)
 	}
-	if err := execFontPatcher(ctx); err != nil {
+	python2, err := exec.LookPath("python2")
+	if err != nil {
+		return errors.New("cannot find `python2` executable")
+	}
+	if err := execFontPatcher(ctx, python2); err != nil {
 		return fmt.Errorf("error in execFontPatcher: %v", err)
 	}
 	return nil
@@ -177,7 +182,7 @@ func execScripts(ctx context.Context, script string, args ...string) error {
 	return nil
 }
 
-func execFontPatcher(ctx context.Context) error {
+func execFontPatcher(ctx context.Context, python2 string) error {
 	c := cliContext(ctx)
 	if !c.BoolT("nerd-fonts") {
 		return nil
@@ -192,10 +197,17 @@ func execFontPatcher(ctx context.Context) error {
 	} else {
 		SFMonos = []string{SFMonoTTFs[0]}
 	}
-	fp := pathInTempDir(ctx, fontPatcher)
-	if err := os.Chmod(fp, 0755); err != nil {
-		return fmt.Errorf("error in Chmod: %v", err)
+
+	fp, err := generateScripts(ctx, fontPatcherTmpl, h{
+		"Python2": python2,
+	})
+	if err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
 	}
+	if _, err := generateScripts(ctx, changelogTmpl, nil); err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
+	}
+
 	for _, f := range SFMonos {
 		mod := modified(f, c.String("suffix"))
 		if err := execScripts(ctx, fp, "-c", "-q", "-out", "build", mod); err != nil {
