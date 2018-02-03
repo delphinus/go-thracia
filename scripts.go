@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -32,6 +33,9 @@ func scripts(ctx context.Context) error {
 	}
 	if err := execFontPatcher(ctx, python2); err != nil {
 		return fmt.Errorf("error in execFontPatcher: %v", err)
+	}
+	if err := copyBuildDir(ctx); err != nil {
+		return fmt.Errorf("error in copyBuildDir: %v", err)
 	}
 	return nil
 }
@@ -222,4 +226,40 @@ func execFontPatcher(ctx context.Context, python2 string) error {
 
 func modified(orig, suffix string) string {
 	return strings.Replace(orig, familyName, familyName+suffix, 1)
+}
+
+func copyBuildDir(ctx context.Context) error {
+	buildDir := pathInTempDir(ctx, "build")
+	if st, err := os.Stat(buildDir); os.IsNotExist(err) || !st.IsDir() {
+		return nil
+	}
+	files, err := ioutil.ReadDir(buildDir)
+	if err != nil {
+		return fmt.Errorf("error in ReadDir: %v", err)
+	}
+	if err := os.MkdirAll("build", 0755); err != nil {
+		return fmt.Errorf("error in MkdirAll: %v", err)
+	}
+	for _, f := range files {
+		in, err := os.Open(filepath.Join(buildDir, f.Name()))
+		if err != nil {
+			return fmt.Errorf("error in Open: %s: %v", f.Name(), err)
+		}
+		outFile := "build/" + f.Name()
+		out, err := os.Create(outFile)
+		if err != nil {
+			return fmt.Errorf("error in Create: %s: %v", outFile, err)
+		}
+		if _, err := io.Copy(out, in); err != nil {
+			return fmt.Errorf("error in Copy: %v", err)
+		}
+		if err := in.Close(); err != nil {
+			return fmt.Errorf("error in Close: %v", err)
+		}
+		if err := out.Close(); err != nil {
+			return fmt.Errorf("error in Close: %v", err)
+		}
+		fmt.Printf("copied: %s\n", outFile)
+	}
+	return nil
 }
