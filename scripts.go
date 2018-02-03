@@ -128,6 +128,7 @@ func generateSFMonoMod(ctx context.Context, fontforge string) error {
 		"Ascent":            1638,
 		"Descent":           410,
 		"ZenkakuSpaceGlyph": "",
+		"HankakuWidth":      1266,
 		"ZenkakuWidth":      1266 * 2,
 		"Padding":           1266 / 2,
 	}); err != nil {

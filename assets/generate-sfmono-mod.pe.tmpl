@@ -82,29 +82,17 @@ while (i < SizeOf(hankaku_list))
         endif
     endif
 
-    # Edit zenkaku comma and period
-    Print("Edit zenkaku comma and period")
-    Select(0uff0c); Scale(150, 150, 100, 0); SetWidth({{.ZenkakuWidth}})
-    Select(0uff0e); Scale(150, 150, 100, 0); SetWidth({{.ZenkakuWidth}})
+    Print("Copy Hankaku glyphs to Zenkaku's ones")
+    j = 0u0000
+    while (j <= 0u005e)
+        j += 1
+        Select(j + 0u0021); Copy(); Select(j + 0uff01); Paste()
+        Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    endloop
 
-    # Edit zenkaku colon and semicolon
-    Print("Edit zenkaku colon and semicolon")
-    Select(0uff0c); Copy(); Select(0uff1b); Paste()
-    Select(0uff0e); Copy(); Select(0uff1b); PasteWithOffset(0, 800)
-    CenterInWidth()
-    Select(0uff1a); Paste(); PasteWithOffset(0, 800)
-    CenterInWidth()
-
-    # Edit zenkaku brackets
-    Print("Edit zenkaku brackets")
-    Select(0u0028); Copy(); Select(0uff08); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # (
-    Select(0u0029); Copy(); Select(0uff09); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # )
-    Select(0u005b); Copy(); Select(0uff3b); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # [
-    Select(0u005d); Copy(); Select(0uff3d); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # ]
-    Select(0u007b); Copy(); Select(0uff5b); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # {
-    Select(0u007d); Copy(); Select(0uff5d); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # }
-    Select(0u003c); Copy(); Select(0uff1c); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # <
-    Select(0u003e); Copy(); Select(0uff1e); Paste(); Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}}) # >
+    Print("Set Hankaku width for some glyphs")
+    Select(0u25ce); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+    Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
 
     # Proccess before saving
     Print("Process before saving (it may take a few minutes)")
