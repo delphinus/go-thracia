@@ -32,6 +32,22 @@ while (i < SizeOf(input_list))
         Move({{.Padding}}, 0); SetWidth({{.Padding}}, 1)
     endif
 
+    # Set Hankaku width to Hankaku Kana
+    Print("Set Hankaku width to Hankaku Kana")
+    j = 0uff60
+    while (j <= 0uff9f)
+        j += 1
+        Select(j)
+        if (square != "true")
+          Move(-{{.HankakuPadding}})
+        endif
+        SetWidth({{.HankakuWidth}})
+    endloop
+
+    # Move left some glyphs
+    Select(0uff5f); Move(-{{.HalfHankakuWidth}}, 0)
+    Select(0uff60); Move(-{{.HalfHankakuWidth}}, 0)
+
     RoundToInt(); RemoveOverlap(); RoundToInt()
 
     # Clear instructions
