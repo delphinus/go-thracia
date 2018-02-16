@@ -17,7 +17,7 @@ while (i < SizeOf(input_list))
     UnlinkReference()
     ScaleToEm({{.Ascent}}, {{.Descent}})
 
-    if (square == "true") {
+    if (square == "true")
         # Move to fit new scale proportion
         Print("Move to fit new scale proportion (it may take a few minutes)")
         SelectWorthOutputting()
@@ -25,12 +25,12 @@ while (i < SizeOf(input_list))
         Print("Scale down to fit alphabets")
         Scale({{.Scale}})
         SetWidth({{.Width}})
-    } else {
+    else
         # Scale down all glyphs
         Print("Move all glyphs to center (it may take a few minutes)")
         SelectWorthOutputting()
         Move({{.Padding}}, 0); SetWidth({{.Padding}}, 1)
-    }
+    endif
 
     RoundToInt(); RemoveOverlap(); RoundToInt()
 

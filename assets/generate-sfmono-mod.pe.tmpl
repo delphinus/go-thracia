@@ -88,19 +88,19 @@ while (i < SizeOf(hankaku_list))
     while (j <= 0u005e)
         j += 1
         Select(j + 0u0021); Copy(); Select(j + 0uff01); Paste()
-        if (square != "true") {
+        if (square != "true")
             Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
-        }
+        endif
     endloop
 
     Print("Set Hankaku width for some glyphs")
-    if (square == "true") {
+    if (square == "true")
         Select(0u25ce); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25cf); Scale(65); SetWidth({{.HankakuWidth}})
-    } else {
+    else
         Select(0u25ce); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
-    }
+    endif
 
     # Proccess before saving
     Print("Process before saving (it may take a few minutes)")
