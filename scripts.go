@@ -38,15 +38,19 @@ func scripts(ctx context.Context) error {
 	if err := generateSFMonoMod(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in generateSFMonoMod: %v", err)
 	}
-	python2, err := exec.LookPath("python2")
-	if err != nil {
-		return errors.New("cannot find `python2` executable")
-	}
-	if err := execFontPatcher(ctx, python2); err != nil {
-		return fmt.Errorf("error in execFontPatcher: %v", err)
-	}
-	if err := copyBuildDir(ctx); err != nil {
-		return fmt.Errorf("error in copyBuildDir: %v", err)
+	if c.BoolT("nerd-fonts") {
+		python2, err := exec.LookPath("python2")
+		if err != nil {
+			return errors.New("cannot find `python2` executable")
+		}
+		if err := execFontPatcher(ctx, python2); err != nil {
+			return fmt.Errorf("error in execFontPatcher: %v", err)
+		}
+		if err := copyBuildDir(ctx); err != nil {
+			return fmt.Errorf("error in copyBuildDir: %v", err)
+		}
+	} else if err := copyCreatedFonts(ctx); err != nil {
+		return fmt.Errorf("error in copyCreatedFonts: %v", err)
 	}
 	return nil
 }
@@ -344,25 +348,50 @@ func copyBuildDir(ctx context.Context) error {
 		return fmt.Errorf("error in MkdirAll: %v", err)
 	}
 	for _, f := range files {
-		in, err := os.Open(filepath.Join(buildDir, f.Name()))
-		if err != nil {
-			return fmt.Errorf("error in Open: %s: %v", f.Name(), err)
+		from := filepath.Join(buildDir, f.Name())
+		to := "build/" + f.Name()
+		if err := copyFile(ctx, from, to); err != nil {
+			return fmt.Errorf("error in copyFile: %s: %v", to, err)
 		}
-		outFile := "build/" + f.Name()
-		out, err := os.Create(outFile)
-		if err != nil {
-			return fmt.Errorf("error in Create: %s: %v", outFile, err)
-		}
-		if _, err := io.Copy(out, in); err != nil {
-			return fmt.Errorf("error in Copy: %v", err)
-		}
-		if err := in.Close(); err != nil {
-			return fmt.Errorf("error in Close: %v", err)
-		}
-		if err := out.Close(); err != nil {
-			return fmt.Errorf("error in Close: %v", err)
-		}
-		fmt.Printf("copied: %s\n", outFile)
 	}
+	return nil
+}
+
+func copyCreatedFonts(ctx context.Context) error {
+	c := cliContext(ctx)
+	tmp := pathInTempDir(ctx, "")
+	for _, f := range SFMonoTTFs {
+		mod := modified(f, c.String("suffix"))
+		from := filepath.Join(tmp, mod)
+		to := "build/" + mod
+		if _, err := os.Stat(from); os.IsNotExist(err) {
+			continue
+		}
+		if err := copyFile(ctx, from, to); err != nil {
+			return fmt.Errorf("error in copyFile: %s: %v", to, err)
+		}
+	}
+	return nil
+}
+
+func copyFile(ctx context.Context, from, to string) error {
+	in, err := os.Open(from)
+	if err != nil {
+		return fmt.Errorf("error in Open: %s: %v", from, err)
+	}
+	out, err := os.Create(to)
+	if err != nil {
+		return fmt.Errorf("error in Create: %s: %v", to, err)
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		return fmt.Errorf("error in Copy: %v", err)
+	}
+	if err := in.Close(); err != nil {
+		return fmt.Errorf("error in Close: %v", err)
+	}
+	if err := out.Close(); err != nil {
+		return fmt.Errorf("error in Close: %v", err)
+	}
+	fmt.Printf("copied: %s\n", to)
 	return nil
 }
