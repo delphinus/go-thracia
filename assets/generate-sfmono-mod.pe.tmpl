@@ -93,9 +93,17 @@ while (i < SizeOf(hankaku_list))
 
     Print("Set Hankaku width for some glyphs")
     if (square == "true")
+        Select(0u25a0); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25a1); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cb); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cc); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25ce); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25cf); Scale(65); SetWidth({{.HankakuWidth}})
     else
+        Select(0u25a0); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25a1); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cb); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cc); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25ce); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
         Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
     endif
