@@ -88,9 +88,7 @@ while (i < SizeOf(hankaku_list))
     while (j <= 0u005e)
         j += 1
         Select(j + 0u0021); Copy(); Select(j + 0uff01); Paste()
-        if (square != "true")
-            Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
-        endif
+        Move({{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
     endloop
 
     Print("Set Hankaku width for some glyphs")

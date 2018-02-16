@@ -209,6 +209,7 @@ func generateSFMonoMod(ctx context.Context, fontforge string) error {
 		winDescent = descent
 		hankakuWidth = 1024
 		zenkakuWidth = 1024 * 2
+		padding = 1024 / 2
 	} else {
 		winAscent = 1950
 		winDescent = 494
