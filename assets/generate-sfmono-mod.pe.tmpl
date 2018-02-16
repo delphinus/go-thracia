@@ -16,6 +16,7 @@ panose_letterform_list = [2, 2, 9, 9]
 copyright         = ""
 vendor_id = "APPL"
 version           = "{{.Version}}"
+square = "{{.Square}}"
 
 # Begin loop of regular and bold
 i = 0
@@ -91,8 +92,23 @@ while (i < SizeOf(hankaku_list))
     endloop
 
     Print("Set Hankaku width for some glyphs")
-    Select(0u25ce); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
-    Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+    if (square == "true")
+        Select(0u25ce); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cf); Scale(65); SetWidth({{.HankakuWidth}})
+    else
+        Select(0u25ce); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+        Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
+    endif
+
+    # Move Zenkaku parenthesis glyphs
+    Select(0uff08); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff09); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff3b); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff3d); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5b); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5d); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5f); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff60); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
 
     # Proccess before saving
     Print("Process before saving (it may take a few minutes)")

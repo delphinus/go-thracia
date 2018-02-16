@@ -13,7 +13,13 @@ import (
 	"text/template"
 )
 
+const (
+	ascent  = 1638
+	descent = 410
+)
+
 func scripts(ctx context.Context) error {
+	c := cliContext(ctx)
 	fontforge, err := exec.LookPath("fontforge")
 	if err != nil {
 		return errors.New("cannot find `fontforge` executable")
@@ -24,18 +30,27 @@ func scripts(ctx context.Context) error {
 	if err := modifyMigu1m(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in modifyMigu1m: %v", err)
 	}
+	if c.Bool("square") {
+		if err := modifySFMono(ctx, fontforge); err != nil {
+			return fmt.Errorf("error in modifySFMono: %v", err)
+		}
+	}
 	if err := generateSFMonoMod(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in generateSFMonoMod: %v", err)
 	}
-	python2, err := exec.LookPath("python2")
-	if err != nil {
-		return errors.New("cannot find `python2` executable")
-	}
-	if err := execFontPatcher(ctx, python2); err != nil {
-		return fmt.Errorf("error in execFontPatcher: %v", err)
-	}
-	if err := copyBuildDir(ctx); err != nil {
-		return fmt.Errorf("error in copyBuildDir: %v", err)
+	if c.BoolT("nerd-fonts") {
+		python2, err := exec.LookPath("python2")
+		if err != nil {
+			return errors.New("cannot find `python2` executable")
+		}
+		if err := execFontPatcher(ctx, python2); err != nil {
+			return fmt.Errorf("error in execFontPatcher: %v", err)
+		}
+		if err := copyBuildDir(ctx); err != nil {
+			return fmt.Errorf("error in copyBuildDir: %v", err)
+		}
+	} else if err := copyCreatedFonts(ctx); err != nil {
+		return fmt.Errorf("error in copyCreatedFonts: %v", err)
 	}
 	return nil
 }
@@ -85,13 +100,72 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 	// Glyphs of SFMono has this metrics:
 	// h: 1638 + 410 = 2048
 	// w: 1266
-	// So zenkaku glyphs should have padding on left and right:
-	// (1266 * 2 - 2048) / 2 = 242
+	// Migu1M has this:
+	// 860 + 140 = 1000
+	var square string
+	var padding, scale float64
+	var width, hankakuWidth, hankakuPadding int
+	if c.Bool("square") {
+		// So zenkaku glyphs should move:
+		// 140 - 2048 * (140 / 1000) = -146.72
+		square = "true"
+		padding = -146.72
+		scale = 82.0
+		width = 2048
+		hankakuWidth = 1024
+	} else {
+		// So zenkaku glyphs should have padding on left and right:
+		// (1266 * 2 - 2048) / 2 = 242
+		padding = 242.0
+		hankakuWidth = 1266
+		hankakuPadding = int(padding) / 2
+	}
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
+		"FontForge":      fontforge,
+		"Square":         square,
+		"Ascent":         ascent,
+		"Descent":        descent,
+		"Padding":        padding,
+		"Scale":          scale,
+		"Width":          width,
+		"HankakuWidth":   hankakuWidth,
+		"HankakuPadding": hankakuPadding,
+		"Inputs":         inputs,
+		"Outputs":        outputs,
+	}); err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
+	} else if err := execScripts(ctx, script); err != nil {
+		return fmt.Errorf("error in execScripts: %v", err)
+	}
+	return nil
+}
+
+func modifySFMono(ctx context.Context, fontforge string) error {
+	c := cliContext(ctx)
+	var inputs, outputs string
+	if c.BoolT("bold") && c.BoolT("italic") {
+		inputs = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+			SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		outputs = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+			modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1], modifiedSFMonoTTFs[2], modifiedSFMonoTTFs[3])
+	} else if c.BoolT("bold") {
+		inputs = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		outputs = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1])
+	} else if c.BoolT("italic") {
+		inputs = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		outputs = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[2])
+	} else {
+		inputs = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		outputs = fmt.Sprintf(`"%s"`, modifiedSFMonoTTFs[0])
+	}
+	// New parameters
+	// Scale: 1024 / 1266 * 100 = 80.8847
+	if script, err := generateScripts(ctx, modifySFMonoTmpl, h{
 		"FontForge": fontforge,
-		"Ascent":    1638,
-		"Descent":   410,
-		"Padding":   242,
+		"Scale":     80.8847,
+		"CenterX":   0,
+		"CenterY":   0,
+		"Width":     1024,
 		"Inputs":    inputs,
 		"Outputs":   outputs,
 	}); err != nil {
@@ -106,35 +180,68 @@ func generateSFMonoMod(ctx context.Context, fontforge string) error {
 	c := cliContext(ctx)
 	var hankakus, zenkakus string
 	if c.BoolT("bold") && c.BoolT("italic") {
-		hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
-			SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+				modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1], modifiedSFMonoTTFs[2], modifiedSFMonoTTFs[3])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+				SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
 			modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1], modifiedMigu1mTTFs[2], modifiedMigu1mTTFs[3])
 	} else if c.BoolT("bold") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1])
 	} else if c.BoolT("italic") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[2])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[2])
 	} else {
-		hankakus = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s"`, modifiedSFMonoTTFs[0])
+		} else {
+			hankakus = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		}
 		zenkakus = fmt.Sprintf(`"%s"`, modifiedMigu1mTTFs[0])
+	}
+	var square string
+	var winAscent, winDescent, hankakuWidth, zenkakuWidth, padding int
+	if c.Bool("square") {
+		winAscent = ascent
+		winDescent = descent
+		hankakuWidth = 1024
+		zenkakuWidth = 1024 * 2
+		padding = 1024 / 2
+	} else {
+		winAscent = 1950
+		winDescent = 494
+		hankakuWidth = 1266
+		zenkakuWidth = 1266 * 2
+		padding = 1266 / 2
 	}
 	if script, err := generateScripts(ctx, generateSFMonoModTmpl, h{
 		"FontForge":         fontforge,
+		"Square":            square,
 		"Hankakus":          hankakus,
 		"Zenkakus":          zenkakus,
 		"FamilyName":        familyName,
 		"FamilyNameSuffix":  c.String("suffix"),
 		"Version":           version,
-		"WinAscent":         1950,
-		"WinDescent":        494,
-		"Ascent":            1638,
-		"Descent":           410,
+		"WinAscent":         winAscent,
+		"WinDescent":        winDescent,
+		"Ascent":            ascent,
+		"Descent":           descent,
 		"ZenkakuSpaceGlyph": "",
-		"HankakuWidth":      1266,
-		"ZenkakuWidth":      1266 * 2,
-		"Padding":           1266 / 2,
+		"HankakuWidth":      hankakuWidth,
+		"ZenkakuWidth":      zenkakuWidth,
+		"Padding":           padding,
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
@@ -241,25 +348,50 @@ func copyBuildDir(ctx context.Context) error {
 		return fmt.Errorf("error in MkdirAll: %v", err)
 	}
 	for _, f := range files {
-		in, err := os.Open(filepath.Join(buildDir, f.Name()))
-		if err != nil {
-			return fmt.Errorf("error in Open: %s: %v", f.Name(), err)
+		from := filepath.Join(buildDir, f.Name())
+		to := "build/" + f.Name()
+		if err := copyFile(ctx, from, to); err != nil {
+			return fmt.Errorf("error in copyFile: %s: %v", to, err)
 		}
-		outFile := "build/" + f.Name()
-		out, err := os.Create(outFile)
-		if err != nil {
-			return fmt.Errorf("error in Create: %s: %v", outFile, err)
-		}
-		if _, err := io.Copy(out, in); err != nil {
-			return fmt.Errorf("error in Copy: %v", err)
-		}
-		if err := in.Close(); err != nil {
-			return fmt.Errorf("error in Close: %v", err)
-		}
-		if err := out.Close(); err != nil {
-			return fmt.Errorf("error in Close: %v", err)
-		}
-		fmt.Printf("copied: %s\n", outFile)
 	}
+	return nil
+}
+
+func copyCreatedFonts(ctx context.Context) error {
+	c := cliContext(ctx)
+	tmp := pathInTempDir(ctx, "")
+	for _, f := range SFMonoTTFs {
+		mod := modified(f, c.String("suffix"))
+		from := filepath.Join(tmp, mod)
+		to := "build/" + mod
+		if _, err := os.Stat(from); os.IsNotExist(err) {
+			continue
+		}
+		if err := copyFile(ctx, from, to); err != nil {
+			return fmt.Errorf("error in copyFile: %s: %v", to, err)
+		}
+	}
+	return nil
+}
+
+func copyFile(ctx context.Context, from, to string) error {
+	in, err := os.Open(from)
+	if err != nil {
+		return fmt.Errorf("error in Open: %s: %v", from, err)
+	}
+	out, err := os.Create(to)
+	if err != nil {
+		return fmt.Errorf("error in Create: %s: %v", to, err)
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		return fmt.Errorf("error in Copy: %v", err)
+	}
+	if err := in.Close(); err != nil {
+		return fmt.Errorf("error in Close: %v", err)
+	}
+	if err := out.Close(); err != nil {
+		return fmt.Errorf("error in Close: %v", err)
+	}
+	fmt.Printf("copied: %s\n", to)
 	return nil
 }
