@@ -14,6 +14,7 @@ import (
 const (
 	version               = "v0.1.0"
 	modifyMigu1mTmpl      = "/assets/modify-migu1m.pe.tmpl"
+	modifySFMonoTmpl      = "/assets/modify-sfmono.pe.tmpl"
 	generateSFMonoModTmpl = "/assets/generate-sfmono-mod.pe.tmpl"
 	generateObliqueTmpl   = "/assets/generate-oblique.pe.tmpl"
 	fontPatcherTmpl       = "/assets/font-patcher.tmpl"
@@ -42,6 +43,13 @@ var SFMonoTTFs = []string{
 	"SFMono-Bold.otf",
 	"SFMono-RegularItalic.otf",
 	"SFMono-BoldItalic.otf",
+}
+
+var modifiedSFMonoTTFs = []string{
+	"SFMonoSquare-Regular.otf",
+	"SFMonoSquare-Bold.otf",
+	"SFMonoSquare-RegularItalic.otf",
+	"SFMonoSquare-BoldItalic.otf",
 }
 
 type h map[string]interface{}
