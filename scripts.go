@@ -100,7 +100,7 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 	// 860 + 140 = 1000
 	var square string
 	var padding, scale float64
-	var width, hankakuWidth, halfHankakuWidth, hankakuPadding int
+	var width, hankakuWidth, hankakuPadding int
 	if c.Bool("square") {
 		// So zenkaku glyphs should move:
 		// 140 - 2048 * (140 / 1000) = -146.72
@@ -109,28 +109,25 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 		scale = 82.0
 		width = 2048
 		hankakuWidth = 1024
-		halfHankakuWidth = 512
 	} else {
 		// So zenkaku glyphs should have padding on left and right:
 		// (1266 * 2 - 2048) / 2 = 242
 		padding = 242.0
 		hankakuWidth = 1266
-		halfHankakuWidth = 1266
 		hankakuPadding = int(padding) / 2
 	}
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
-		"FontForge":        fontforge,
-		"Square":           square,
-		"Ascent":           ascent,
-		"Descent":          descent,
-		"Padding":          padding,
-		"Scale":            scale,
-		"Width":            width,
-		"HankakuWidth":     hankakuWidth,
-		"HalfHankakuWidth": halfHankakuWidth,
-		"HankakuPadding":   hankakuPadding,
-		"Inputs":           inputs,
-		"Outputs":          outputs,
+		"FontForge":      fontforge,
+		"Square":         square,
+		"Ascent":         ascent,
+		"Descent":        descent,
+		"Padding":        padding,
+		"Scale":          scale,
+		"Width":          width,
+		"HankakuWidth":   hankakuWidth,
+		"HankakuPadding": hankakuPadding,
+		"Inputs":         inputs,
+		"Outputs":        outputs,
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {

@@ -44,10 +44,6 @@ while (i < SizeOf(input_list))
         SetWidth({{.HankakuWidth}})
     endloop
 
-    # Move left some glyphs
-    Select(0uff5f); Move(-{{.HalfHankakuWidth}}, 0)
-    Select(0uff60); Move(-{{.HalfHankakuWidth}}, 0)
-
     RoundToInt(); RemoveOverlap(); RoundToInt()
 
     # Clear instructions

@@ -100,6 +100,16 @@ while (i < SizeOf(hankaku_list))
         Select(0u25cf); Move(-{{.Padding}}, 0); Scale(65); SetWidth({{.HankakuWidth}})
     endif
 
+    # Move Zenkaku parenthesis glyphs
+    Select(0uff08); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff09); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff3b); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff3d); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5b); Move( {{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5d); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff5f); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+    Select(0uff60); Move(-{{.Padding}}, 0); SetWidth({{.ZenkakuWidth}})
+
     # Proccess before saving
     Print("Process before saving (it may take a few minutes)")
     Select(".notdef")
