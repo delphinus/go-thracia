@@ -96,6 +96,10 @@ func flags() []cli.Flag {
 			Name:  "italic, i",
 			Usage: "generate italic fonts (default: true)",
 		},
+		cli.BoolFlag{
+			Name:  "square, q",
+			Usage: "generate square sized fonts (default: false)",
+		},
 	}
 }
 

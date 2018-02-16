@@ -14,6 +14,7 @@ import (
 )
 
 func scripts(ctx context.Context) error {
+	c := cliContext(ctx)
 	fontforge, err := exec.LookPath("fontforge")
 	if err != nil {
 		return errors.New("cannot find `fontforge` executable")
@@ -23,6 +24,11 @@ func scripts(ctx context.Context) error {
 	}
 	if err := modifyMigu1m(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in modifyMigu1m: %v", err)
+	}
+	if c.Bool("square") {
+		if err := modifySFMono(ctx, fontforge); err != nil {
+			return fmt.Errorf("error in modifySFMono: %v", err)
+		}
 	}
 	if err := generateSFMonoMod(ctx, fontforge); err != nil {
 		return fmt.Errorf("error in generateSFMonoMod: %v", err)
@@ -92,6 +98,42 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 		"Ascent":    1638,
 		"Descent":   410,
 		"Padding":   242,
+		"Inputs":    inputs,
+		"Outputs":   outputs,
+	}); err != nil {
+		return fmt.Errorf("error in generateScripts: %v", err)
+	} else if err := execScripts(ctx, script); err != nil {
+		return fmt.Errorf("error in execScripts: %v", err)
+	}
+	return nil
+}
+
+func modifySFMono(ctx context.Context, fontforge string) error {
+	c := cliContext(ctx)
+	var inputs, outputs string
+	if c.BoolT("bold") && c.BoolT("italic") {
+		inputs = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+			SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		outputs = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+			modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1], modifiedSFMonoTTFs[2], modifiedSFMonoTTFs[3])
+	} else if c.BoolT("bold") {
+		inputs = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		outputs = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1])
+	} else if c.BoolT("italic") {
+		inputs = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		outputs = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[2])
+	} else {
+		inputs = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		outputs = fmt.Sprintf(`"%s"`, modifiedSFMonoTTFs[0])
+	}
+	// New parameters
+	// Scale: 1024 / 1266 * 100 = 80.8847
+	if script, err := generateScripts(ctx, modifySFMonoTmpl, h{
+		"FontForge": fontforge,
+		"Scale":     80.8847,
+		"CenterX":   0,
+		"CenterY":   0,
+		"Width":     1024,
 		"Inputs":    inputs,
 		"Outputs":   outputs,
 	}); err != nil {
