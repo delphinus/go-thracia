@@ -39,7 +39,7 @@ while (i < SizeOf(input_list))
         j += 1
         Select(j)
         if (square != "true")
-          Move(-{{.HankakuPadding}})
+          Move(-{{.HankakuPadding}}, 0)
         endif
         SetWidth({{.HankakuWidth}})
     endloop
