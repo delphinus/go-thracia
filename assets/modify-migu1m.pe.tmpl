@@ -5,6 +5,7 @@ Print("Generate modified Migu 1M")
 # Set parameters
 input_list  = [{{.Inputs}}]
 output_list  = [{{.Outputs}}]
+square = "{{.Square}}"
 
 # Begin loop of regular and bold
 i = 0
@@ -16,10 +17,20 @@ while (i < SizeOf(input_list))
     UnlinkReference()
     ScaleToEm({{.Ascent}}, {{.Descent}})
 
-    # Scale down all glyphs
-    Print("Move all glyphs to center (it may take a few minutes)")
-    SelectWorthOutputting()
-    Move({{.Padding}}, 0); SetWidth({{.Padding}}, 1)
+    if (square == "true") {
+        # Move to fit new scale proportion
+        Print("Move to fit new scale proportion (it may take a few minutes)")
+        SelectWorthOutputting()
+        Move(0, {{.Padding}})
+        Print("Scale down to fit alphabets")
+        Scale({{.Scale}})
+        SetWidth({{.Width}})
+    } else {
+        # Scale down all glyphs
+        Print("Move all glyphs to center (it may take a few minutes)")
+        SelectWorthOutputting()
+        Move({{.Padding}}, 0); SetWidth({{.Padding}}, 1)
+    }
 
     RoundToInt(); RemoveOverlap(); RoundToInt()
 

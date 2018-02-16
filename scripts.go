@@ -13,6 +13,11 @@ import (
 	"text/template"
 )
 
+const (
+	ascent  = 1638
+	descent = 410
+)
+
 func scripts(ctx context.Context) error {
 	c := cliContext(ctx)
 	fontforge, err := exec.LookPath("fontforge")
@@ -91,13 +96,31 @@ func modifyMigu1m(ctx context.Context, fontforge string) error {
 	// Glyphs of SFMono has this metrics:
 	// h: 1638 + 410 = 2048
 	// w: 1266
-	// So zenkaku glyphs should have padding on left and right:
-	// (1266 * 2 - 2048) / 2 = 242
+	// Migu1M has this:
+	// 860 + 140 = 1000
+	var square string
+	var padding, scale float64
+	var width int
+	if c.Bool("square") {
+		// So zenkaku glyphs should move:
+		// 140 - 2048 * (140 / 1000) = -146.72
+		square = "true"
+		padding = -146.72
+		scale = 82.0
+		width = 2048
+	} else {
+		// So zenkaku glyphs should have padding on left and right:
+		// (1266 * 2 - 2048) / 2 = 242
+		padding = 242.0
+	}
 	if script, err := generateScripts(ctx, modifyMigu1mTmpl, h{
 		"FontForge": fontforge,
-		"Ascent":    1638,
-		"Descent":   410,
-		"Padding":   242,
+		"Square":    square,
+		"Ascent":    ascent,
+		"Descent":   descent,
+		"Padding":   padding,
+		"Scale":     scale,
+		"Width":     width,
 		"Inputs":    inputs,
 		"Outputs":   outputs,
 	}); err != nil {
@@ -148,35 +171,67 @@ func generateSFMonoMod(ctx context.Context, fontforge string) error {
 	c := cliContext(ctx)
 	var hankakus, zenkakus string
 	if c.BoolT("bold") && c.BoolT("italic") {
-		hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
-			SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+				modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1], modifiedSFMonoTTFs[2], modifiedSFMonoTTFs[3])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
+				SFMonoTTFs[0], SFMonoTTFs[1], SFMonoTTFs[2], SFMonoTTFs[3])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s", "%s", "%s"`,
 			modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1], modifiedMigu1mTTFs[2], modifiedMigu1mTTFs[3])
 	} else if c.BoolT("bold") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[1])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[1])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[1])
 	} else if c.BoolT("italic") {
-		hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, modifiedSFMonoTTFs[0], modifiedSFMonoTTFs[2])
+		} else {
+			hankakus = fmt.Sprintf(`"%s", "%s"`, SFMonoTTFs[0], SFMonoTTFs[2])
+		}
 		zenkakus = fmt.Sprintf(`"%s", "%s"`, modifiedMigu1mTTFs[0], modifiedMigu1mTTFs[2])
 	} else {
-		hankakus = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		if c.Bool("square") {
+			hankakus = fmt.Sprintf(`"%s"`, modifiedSFMonoTTFs[0])
+		} else {
+			hankakus = fmt.Sprintf(`"%s"`, SFMonoTTFs[0])
+		}
 		zenkakus = fmt.Sprintf(`"%s"`, modifiedMigu1mTTFs[0])
+	}
+	var square string
+	var winAscent, winDescent, hankakuWidth, zenkakuWidth, padding int
+	if c.Bool("square") {
+		winAscent = ascent
+		winDescent = descent
+		hankakuWidth = 1024
+		zenkakuWidth = 1024 * 2
+	} else {
+		winAscent = 1950
+		winDescent = 494
+		hankakuWidth = 1266
+		zenkakuWidth = 1266 * 2
+		padding = 1266 / 2
 	}
 	if script, err := generateScripts(ctx, generateSFMonoModTmpl, h{
 		"FontForge":         fontforge,
+		"Square":            square,
 		"Hankakus":          hankakus,
 		"Zenkakus":          zenkakus,
 		"FamilyName":        familyName,
 		"FamilyNameSuffix":  c.String("suffix"),
 		"Version":           version,
-		"WinAscent":         1950,
-		"WinDescent":        494,
-		"Ascent":            1638,
-		"Descent":           410,
+		"WinAscent":         winAscent,
+		"WinDescent":        winDescent,
+		"Ascent":            ascent,
+		"Descent":           descent,
 		"ZenkakuSpaceGlyph": "",
-		"HankakuWidth":      1266,
-		"ZenkakuWidth":      1266 * 2,
-		"Padding":           1266 / 2,
+		"HankakuWidth":      hankakuWidth,
+		"ZenkakuWidth":      zenkakuWidth,
+		"Padding":           padding,
 	}); err != nil {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	} else if err := execScripts(ctx, script); err != nil {
