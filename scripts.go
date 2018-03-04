@@ -1,6 +1,7 @@
 package thracia
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -39,9 +40,9 @@ func scripts(ctx context.Context) error {
 		return fmt.Errorf("error in generateSFMonoMod: %v", err)
 	}
 	if c.BoolT("nerd-fonts") {
-		python2, err := exec.LookPath("python2")
+		python2, err := brewedPython2(ctx)
 		if err != nil {
-			return errors.New("cannot find `python2` executable")
+			return fmt.Errorf("error in brewedPython2: %v", err)
 		}
 		if err := execFontPatcher(ctx, python2); err != nil {
 			return fmt.Errorf("error in execFontPatcher: %v", err)
@@ -53,6 +54,28 @@ func scripts(ctx context.Context) error {
 		return fmt.Errorf("error in copyCreatedFonts: %v", err)
 	}
 	return nil
+}
+
+func brewedPython2(ctx context.Context) (string, error) {
+	brew, err := exec.LookPath("brew")
+	if err != nil {
+		return "", errors.New("cannot find `brew` executable")
+	}
+	celler, err := exec.CommandContext(ctx, brew, "--prefix", "python@2").
+		Output()
+	if err != nil {
+		return "", fmt.Errorf("error in Output")
+	}
+	celler = bytes.TrimSuffix(celler, []byte{'\n'})
+	python2 := filepath.Join(string(celler), "libexec", "bin", "python")
+	d, err := os.Stat(python2)
+	if err != nil {
+		return "", fmt.Errorf("error in Stat: %v", err)
+	}
+	if m := d.Mode(); m.IsDir() || m&0111 == 0 {
+		return "", errors.New("python2 not found")
+	}
+	return python2, nil
 }
 
 func generateOblique(ctx context.Context, fontforge string) error {
