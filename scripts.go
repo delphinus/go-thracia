@@ -345,9 +345,13 @@ func execFontPatcher(ctx context.Context, python2 string) error {
 		return fmt.Errorf("error in generateScripts: %v", err)
 	}
 
+	options := []string{"-c", "-q", "-out", "build"}
+	if c.Bool("square") {
+		options = append(options, "--square")
+	}
 	for _, f := range SFMonos {
-		mod := modified(f, c.String("suffix"))
-		if err := execScripts(ctx, fp, "-c", "-q", "-out", "build", mod); err != nil {
+		args := append(options, modified(f, c.String("suffix")))
+		if err := execScripts(ctx, fp, args...); err != nil {
 			return fmt.Errorf("error in execScripts: %v", err)
 		}
 	}

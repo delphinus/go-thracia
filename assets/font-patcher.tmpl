@@ -50,6 +50,7 @@ parser.add_argument('--powerline', dest='powerline', action='store_true', help='
 parser.add_argument('--powerlineextra', dest='powerlineextra', action='store_true', help='Add Powerline Glyphs (https://github.com/ryanoasis/powerline-extra-symbols)', default=False)
 parser.add_argument('--custom', type=str, nargs='?', dest='custom', help='Specify a custom symbol font. All new glyphs will be copied, with no scaling applied.', default=False)
 parser.add_argument('--postprocess', type=str, nargs='?', dest='postprocess', help='Specify a Script for Post Processing', default=False)
+parser.add_argument('--square', dest='square', action='store_true', help='Use size parameters suitable for Square fonts', default=False)
 
 # http://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
 progressbars_group_parser = parser.add_mutually_exclusive_group(required=False)
@@ -455,10 +456,16 @@ def copy_glyphs(sourceFont, sourceFontStart, sourceFontEnd, symbolFont, symbolFo
     y_diff = 0
 
     if symbolFontStart == 0xe600: # devicons
-        x_ratio = 1.3
-        y_ratio = 1.3
-        x_diff = -150
-        y_diff = -150
+        if args.square:
+            x_ratio = 1.05
+            y_ratio = 1.05
+            x_diff = -100
+            y_diff = -250
+        else:
+            x_ratio = 1.3
+            y_ratio = 1.3
+            x_diff = -150
+            y_diff = -150
     elif symbolFontStart in [0xe0a0, 0xe0b0, 0xe0a3, 0xe0b4, 0xe0cc]: # powerline (extra)
         # for Iosevka
         # x_ratio = 0.96
@@ -466,20 +473,49 @@ def copy_glyphs(sourceFont, sourceFontStart, sourceFontEnd, symbolFont, symbolFo
         # x_diff = 0
         # y_diff = 20
         # for SF Mono 13pt
-        x_ratio = 1.20
-        y_ratio = 1.08
-        x_diff = 0
-        y_diff = -45
-    elif symbolFontStart == 0xe000 and sourceFontStart == 0xe000: # pomicons
-        x_ratio = 1.3
-        y_ratio = 1.3
-        x_diff = 0
-        y_diff = -200
+        if args.square:
+            x_ratio = 0.95
+            y_ratio = 0.88
+            x_diff = 0
+            y_diff = -30
+        else:
+            x_ratio = 1.20
+            y_ratio = 1.08
+            x_diff = 0
+            y_diff = -45
+
+    elif symbolFontStart == 0xf100:  # font-linux
+        if args.square:
+            y_diff = -120
+
+    # font-awesome-extension
+    elif symbolFontStart == 0xe000 and sourceFontStart == 0xe200:
+        if args.square:
+            y_diff = -400
+
+    elif symbolFontStart == 0xe000 and sourceFontStart is None: # pomicons
+        if args.square:
+            x_ratio = 1.2
+            y_ratio = 1.2
+            x_diff = -200
+            y_diff = -300
+        else:
+            x_ratio = 1.3
+            y_ratio = 1.3
+            x_diff = 0
+            y_diff = -200
+
     elif symbolFontStart in [0xf000, 0x2665, 0x26a1, 0xf27c]: # octicons
-        x_ratio = 1.1
-        y_ratio = 1.1
-        x_diff = 80
-        y_diff = 35
+        if args.square:
+            x_ratio = 0.95
+            y_ratio = 0.95
+            x_diff = 30
+            y_diff = -100
+        else:
+            x_ratio = 1.1
+            y_ratio = 1.1
+            x_diff = 80
+            y_diff = 35
 
     scale = psMat.scale(x_ratio, y_ratio)
     translate = psMat.translate(x_diff, y_diff)
