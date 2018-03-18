@@ -67,7 +67,7 @@ func brewedPython2(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("error in Output")
 	}
 	celler = bytes.TrimSuffix(celler, []byte{'\n'})
-	python2 := filepath.Join(string(celler), "libexec", "bin", "python")
+	python2 := filepath.Join(string(celler), "bin", "python")
 	d, err := os.Stat(python2)
 	if err != nil {
 		return "", fmt.Errorf("error in Stat: %v", err)
